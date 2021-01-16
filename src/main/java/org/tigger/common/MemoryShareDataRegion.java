@@ -1,12 +1,14 @@
 package org.tigger.common;
 
 import io.netty.channel.Channel;
+import org.tigger.db.jdbc.ConnectionPool;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 内存共享数据区
@@ -16,15 +18,35 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class MemoryShareDataRegion {
 
+    public static ConnectionPool connectionPool = null;
+
+    /**
+     * 本机IP
+     */
+    public static String localIp;
+
+    static {
+        try {
+            localIp = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * 局域网所有IP
      */
     public static List<String> localAreaNetworkIp = new ArrayList<>();
 
     /**
-     * 局域网运行的IP和Channel映射
+     * 局域网运行的IP和Channel映射  client->server
      */
     public static Map<String, Channel> tigerRunningIpChannel = new ConcurrentHashMap<>();
+
+    /**
+     * 局域网运行的IP和Channel映射  server->client
+     */
+    public static Map<String, Channel> tigerRunningIpChannelS2C = new ConcurrentHashMap<>();
 
     /**
      * 运行状态

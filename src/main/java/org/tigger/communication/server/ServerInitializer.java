@@ -10,7 +10,7 @@ import io.netty.handler.codec.string.StringEncoder;
 
 import java.nio.charset.Charset;
 
-public class SimpleChatServerInitializer extends
+public class ServerInitializer extends
         ChannelInitializer<SocketChannel> {
 
 	@Override
@@ -20,7 +20,7 @@ public class SimpleChatServerInitializer extends
         pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
         pipeline.addLast("decoder", new StringDecoder(Charset.forName("UTF-8")));
         pipeline.addLast("encoder", new StringEncoder(Charset.forName("UTF-8")));
-        pipeline.addLast("handler", new SimpleChatServerHandler());
+        pipeline.addLast("handler", new ServerHandler());
  
 		System.out.println("SimpleChatClient:"+ch.remoteAddress() +"连接上");
     }

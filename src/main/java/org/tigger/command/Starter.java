@@ -2,17 +2,21 @@ package org.tigger.command;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
-import org.tigger.common.Constant;
 import org.tigger.common.MemoryShareDataRegion;
 import org.tigger.common.ObjectFactory;
-import org.tigger.communication.client.Client;
+import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.util.NetUtil;
+import org.tigger.communication.server.Server;
+import org.tigger.db.jdbc.ConnectionPool;
 
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
+
+import static org.tigger.common.Constant.EMPTY_STRING;
+import static org.tigger.common.Constant.PORT;
+import static org.tigger.communication.server.MessageType.ONLINE_NOTICE;
 
 /**
  * tigger启动要做的事
@@ -27,18 +31,31 @@ public class Starter {
 
         logger.info("tiger 启动开始...");
 
-        //1. 获取并缓存局域网所有IP
+        //1. 启动Server
+        logger.info("启动Server开始...");
+        new Server(PORT).run();
+        logger.info("启动Server结束");
+
+        //2. 获取并缓存局域网所有IP
         logger.info("获取并缓存局域网所有IP开始...");
         MemoryShareDataRegion.localAreaNetworkIp.addAll(NetUtil.getIPsByWindows());
+        logger.info("获取并缓存局域网所有IP结束");
 
-        //2. 获取有Tiger运行的IP
+        //3. 获取有Tiger运行的IP
         logger.info("获取有Tiger运行的IP开始...");
         MemoryShareDataRegion.tigerRunningIpChannel.putAll(getTigerRunningIp());
         logger.info("获取有Tiger运行的IP结束" + JSON.toJSONString(MemoryShareDataRegion.tigerRunningIpChannel));
 
-        //2. 上线通知
+        //4. 上线通知
+        logger.info("上线通知开始...");
+        onlineNotice();
+        logger.info("上线通知结束...");
 
+        //5. 初始化数据库，建表，建立连接池 TODO 建表
+        MemoryShareDataRegion.connectionPool = new ConnectionPool();
 
+        //6. 启动定时任务
+        AutoTrigger.run();
 
         logger.info("tiger 启动完成");
     }
@@ -52,11 +69,41 @@ public class Starter {
         Map<String,Channel> map = new ConcurrentHashMap<>();
         MemoryShareDataRegion.localAreaNetworkIp.forEach(ip->{
             //只要端口开启就认为此IP上启动着tiger
-            Channel channel = ObjectFactory.getClient().connect(ip, Constant.PORT);
+            Channel channel = ObjectFactory.getClient().connect(ip, PORT);
             if (channel != null) {
                 map.put(ip,channel);
             }
         });
         return map;
     }
+
+    /**
+     * 上线通知其它实例
+     */
+    private static void onlineNotice() {
+        MemoryShareDataRegion.tigerRunningIpChannel.forEach((k,v)->{
+            MessageProtobuf.Body.Builder bodyBuilder = MessageProtobuf.Body.newBuilder();
+
+            MessageProtobuf.Head.Builder headOrBuilder = MessageProtobuf.Head.newBuilder();
+            headOrBuilder.setSeq(0);
+            headOrBuilder.setTarget(EMPTY_STRING);
+            headOrBuilder.setTimestamp(System.currentTimeMillis());
+            headOrBuilder.setMsgId(UUID.randomUUID().toString());
+            headOrBuilder.setFrom(MemoryShareDataRegion.localIp);
+            headOrBuilder.setMsgType(ONLINE_NOTICE.getMsgType());
+            headOrBuilder.setExtend(EMPTY_STRING);
+            headOrBuilder.setStatus(0);
+
+            MessageProtobuf.Msg.Builder msgBuilder = MessageProtobuf.Msg.newBuilder();
+            msgBuilder.setHead(headOrBuilder);
+            bodyBuilder.setType(0);
+            bodyBuilder.setUrl(EMPTY_STRING);
+            bodyBuilder.setExtra(EMPTY_STRING);
+            bodyBuilder.setContent("上线通知");
+            msgBuilder.setBody(bodyBuilder);
+            logger.info("上线通知:" + k);
+            v.writeAndFlush(msgBuilder.build());
+        });
+    }
+
 }

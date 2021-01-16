@@ -6,9 +6,9 @@ package org.tigger.communication.server;
 public enum MessageType {
 
     /*
-     * 绑定消息
+     * 上线通知
      */
-    BIND(1001),
+    ONLINE_NOTICE(1001),
 
     /*
      * 心跳消息
@@ -88,6 +88,15 @@ public enum MessageType {
 
     public int getMsgType() {
         return this.msgType;
+    }
+
+    public static MessageType getMsgType(int msgType) {
+        for (MessageType value : MessageType.values()) {
+            if (value.getMsgType() == msgType) {
+                return value;
+            }
+        }
+        throw new RuntimeException("无此msgType:" + msgType);
     }
 
     public enum MessageContentType {

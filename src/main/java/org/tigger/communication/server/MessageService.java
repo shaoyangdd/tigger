@@ -7,6 +7,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.tigger.common.MemoryShareDataRegion;
+import org.tigger.common.ObjectFactory;
 import org.tigger.communication.client.Message;
 import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.Client;
@@ -14,6 +16,8 @@ import org.tigger.communication.client.Client;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
+
+import static org.tigger.common.Constant.PORT;
 
 /**
  * 消息服务
@@ -30,64 +34,65 @@ public class MessageService {
     /**
      * 处理消息
      *
-     * @param ctx
-     * @param msg
+     * @param ctx ChannelHandlerContext
+     * @param msg MessageProtobuf.Msg
      */
     public static void processMessage(ChannelHandlerContext ctx, MessageProtobuf.Msg msg) {
-        if (MessageType.BIND.getMsgType() == msg.getHead().getMsgType()) {
-            bind(ctx, msg);
-        } else if (MessageType.SINGLE_CHAT.getMsgType() == msg.getHead().getMsgType()) {
-            singleChat(ctx, msg);
-        } else if (MessageType.HEARTBEAT.getMsgType() == msg.getHead().getMsgType()) {
-            heartBeat(ctx, msg);
-        } else if (MessageType.QUERY_ONLINE_USER.getMsgType() == msg.getHead().getMsgType()) {
-            queryOnlineUsers(ctx, msg);
-        } else if (MessageType.DELETE_ONLINE_USER.getMsgType() == msg.getHead().getMsgType()) {
-            deleteOnlineUsers(ctx, msg);
-        } else if (MessageType.QUERY_OFFLINE_MESSAGE.getMsgType() == msg.getHead().getMsgType()) {
-            queryOfflineMessage(ctx, msg);
-        } else if (MessageType.DELETE_OFFLINE_MESSAGE.getMsgType() == msg.getHead().getMsgType()) {
-            deleteOfflineMessage(ctx, msg);
-        } else {
-            logger.info("收到客户端" + ctx.channel().id().asShortText() + "的消息类型错误:" + JSON.toJSONString(new Message(msg)));
+        MessageType messageType = MessageType.getMsgType(msg.getHead().getMsgType());
+        switch (messageType) {
+            case ONLINE_NOTICE :
+                processOnlineNotice(ctx, msg);
+                break;
+            default:
+                doNothing();
         }
+
+//        if (MessageType.ONLINE_NOTICE.getMsgType() == msg.getHead().getMsgType()) {
+//            bind(ctx, msg);
+//        } else if (MessageType.SINGLE_CHAT.getMsgType() == msg.getHead().getMsgType()) {
+//            singleChat(ctx, msg);
+//        } else if (MessageType.HEARTBEAT.getMsgType() == msg.getHead().getMsgType()) {
+//            heartBeat(ctx, msg);
+//        } else if (MessageType.QUERY_ONLINE_USER.getMsgType() == msg.getHead().getMsgType()) {
+//            queryOnlineUsers(ctx, msg);
+//        } else if (MessageType.DELETE_ONLINE_USER.getMsgType() == msg.getHead().getMsgType()) {
+//            deleteOnlineUsers(ctx, msg);
+//        } else if (MessageType.QUERY_OFFLINE_MESSAGE.getMsgType() == msg.getHead().getMsgType()) {
+//            queryOfflineMessage(ctx, msg);
+//        } else if (MessageType.DELETE_OFFLINE_MESSAGE.getMsgType() == msg.getHead().getMsgType()) {
+//            deleteOfflineMessage(ctx, msg);
+//        } else {
+//            logger.info("收到客户端" + ctx.channel().id().asShortText() + "的消息类型错误:" + JSON.toJSONString(new Message(msg)));
+//        }
     }
 
-    private static void bind(ChannelHandlerContext ctx, MessageProtobuf.Msg msg) {
-//        Channel incoming = ctx.channel();
-//        String channelId = incoming.id().asLongText();
-//        String userId = msg.getHead().getFrom();
-//        logger.info("收到客户端" + incoming.id().asShortText() + "的绑定消息:" + JSON.toJSONString(new Message(msg)));
-//        //绑定
-//        JSONObject jsonObject = JSON.parseObject(msg.getHead().getExtend());
-//        String deviceId = jsonObject.getString("deviceId");
-//        logger.info("绑定映射信息:userId【" + userId + "】,channelId:【" + channelId + "】,deviceId:【" + deviceId + "】");
-//        Message successMsg = new Message(msg);
-//        successMsg.setContent("绑定成功");
-//        logger.info("绑定返回:" + JSON.toJSONString(successMsg));
-//       // incoming.writeAndFlush(getMsg(successMsg));
-//        //发送离线消息
-//        Queue<MessageProtobuf.Msg> offlineMessage = OfflineService.getOfflineMessage(userId);
-//        if (offlineMessage != null && offlineMessage.size() > 0) {
-//
-//            while (offlineMessage.iterator().hasNext()){
-//                MessageProtobuf.Msg offMsg=   offlineMessage.poll();
-//                logger.info("发送给{}离线消息:{}", userId, JSON.toJSONString(new Message(offMsg)));
-//                incoming.writeAndFlush(offMsg);
-//            }
-//
-//
-//        }
-//        //广播给其它在线用户，TODO 现在先是发给除自己的所有人，后面考虑好友、群等等
-//        for (Channel channel : channels) {
-//            String channelId2 = channel.id().asLongText();
-//            String userId2 = ChatRelationShip.getUserIdByChannelId(channelId2);
-//            if (userId2 != null && !userId.equals(userId2)) {
-//                //没有绑定的用户不广播给他
-//                logger.info("广播给otherUserId:{},channelId:{},{}上线", userId2, channelId2, userId);
-//                channel.writeAndFlush(getBroadcastMsg(userId));
-//            }
-//        }
+    private static void doNothing() {
+    }
+
+    /**
+     * 其它实例上线，本机要处理的事
+     * @param ctx ChannelHandlerContext
+     * @param msg MessageProtobuf.Msg
+     */
+    private static void processOnlineNotice(ChannelHandlerContext ctx, MessageProtobuf.Msg msg) {
+        Channel incoming = ctx.channel();
+        logger.info("其它实例上线，处理开始...");
+
+        // 缓存映射
+        String ip = incoming.remoteAddress().toString();
+        MemoryShareDataRegion.tigerRunningIpChannelS2C.put(ip,incoming);
+        logger.info("缓存映射,IP:" + ip + "channel:" + incoming.id().asShortText());
+
+        // 主动连它
+        Channel channel = ObjectFactory.getClient().connect(ip, PORT);
+        if (channel != null) {
+            MemoryShareDataRegion.tigerRunningIpChannel.put(ip,channel);
+            logger.info("连接成功,IP:" + ip);
+        } else {
+            logger.info("连接失败,IP:" + ip);
+        }
+
+        logger.info("其它实例上线，处理结束");
     }
 
     private static void singleChat(ChannelHandlerContext ctx, MessageProtobuf.Msg msg) {

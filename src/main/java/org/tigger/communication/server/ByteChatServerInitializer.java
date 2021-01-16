@@ -24,7 +24,7 @@ public class ByteChatServerInitializer extends
         pipeline.addLast(new ProtobufDecoder(MessageProtobuf.Msg.getDefaultInstance()));
         pipeline.addLast(new ProtobufVarint32LengthFieldPrepender());
         pipeline.addLast(new ProtobufEncoder());
-        pipeline.addLast(new ProtobufChatServerHandler());
+        pipeline.addLast(new ProtobufServerHandler());
 
         System.out.println("ByteChatServerInitializer:" + ch.remoteAddress() + "连接上");
     }

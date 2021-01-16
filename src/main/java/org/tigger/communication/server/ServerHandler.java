@@ -8,7 +8,7 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-public class SimpleChatServerHandler extends SimpleChannelInboundHandler<String> { // (1)
+public class ServerHandler extends SimpleChannelInboundHandler<String> { // (1)
 
 	public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
