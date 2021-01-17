@@ -1,15 +1,8 @@
 package org.tigger.command;
 
-import com.alibaba.fastjson.JSON;
-import org.tigger.common.MemoryShareDataRegion;
-import org.tigger.db.dao.TigerTaskDao;
-import org.tigger.db.dao.TigerTaskFlowDao;
-import org.tigger.db.dao.entity.TigerTask;
-import org.tigger.db.dao.entity.TigerTaskFlow;
-
-import java.util.*;
-
-import static org.tigger.common.Constant.EMPTY_STRING;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
 
 /**
  * 自动触发器
@@ -19,43 +12,29 @@ import static org.tigger.common.Constant.EMPTY_STRING;
 public class AutoTrigger {
 
     public static void run() {
-       TimerTask timerTask =  new TimerTask() {
-            @Override
-            public void run() {
-                execute(EMPTY_STRING);
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(timerTask,20000);
-    }
+        try {
+            //创建一个scheduler
+            Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+            scheduler.getContext().put("skey", "svalue");
 
-    private static void execute(String previousId) {
-        List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlow(previousId);
-        if (tigerTaskFlowList.size() == 0) {
-            return;
-        }
-        List<TigerTask> tigerTaskList = new ArrayList<>();
-        List<String> idList = new ArrayList<>();
-        for (TigerTaskFlow tigerTaskFlow : tigerTaskFlowList) {
-            tigerTaskList.add(TigerTaskDao.getTigerTaskByName(tigerTaskFlow.getTaskName()));
-            idList.add(tigerTaskFlow.getId()+"");
-        }
-        TestTaskSplitStrategy testTaskSplitStrategy = new TestTaskSplitStrategy();
-        Map<String, List<TigerTask>> map = testTaskSplitStrategy.splitTaskFlow(tigerTaskList);
-        List<TigerTask> tigerTaskList1 = map.get(MemoryShareDataRegion.localIp);
-        // 一个IP上执行并行tigerTaskList1.size()个任务
-        for (TigerTask tigerTask : tigerTaskList1) {
-            // TODO 写个匿名内部类来实现，实际应该用实现类
-            TaskExecutor taskExecutor = (taskName, parameter) -> {
-                // TODO 此处可以调用业务逻辑的代码，比如用springBatch可以调起springBatchJob
-                // TODO 根据taskName调用业务逻辑代码，传入参数。此处省略，用打印任务名和参数来模拟
-                System.out.println("本IP:" + MemoryShareDataRegion.ipOrder + "执行:" +taskName + "任务,参数:" + parameter);
-                return false;
-            };
-            taskExecutor.execute(tigerTask.getTaskName(), tigerTask.getTaskParameter());
-        }
-        for (String id : idList) {
-            execute(id);
+            //创建一个Trigger
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("trigger1", "group1")
+                    .usingJobData("t1", "tv1")
+                    .withSchedule(cronSchedule("0 0/2 8-17 * * ?")).build();
+            trigger.getJobDataMap().put("t2", "tv2");
+
+            //创建一个job
+            JobDetail job = JobBuilder.newJob(QuartzJob.class)
+                    .usingJobData("j1", "jv1")
+                    .withIdentity("myjob", "mygroup").build();
+            job.getJobDataMap().put("j2", "jv2");
+
+            //注册trigger并启动scheduler
+            scheduler.scheduleJob(job, trigger);
+            scheduler.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

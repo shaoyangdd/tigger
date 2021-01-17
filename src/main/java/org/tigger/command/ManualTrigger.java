@@ -6,4 +6,6 @@ package org.tigger.command;
  * @date 2020-01-16
  */
 public class ManualTrigger {
+
+
 }
