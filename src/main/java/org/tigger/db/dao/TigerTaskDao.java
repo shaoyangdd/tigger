@@ -13,11 +13,11 @@ import java.util.List;
 
 public class TigerTaskDao {
 
-    public static TigerTask getTigerTaskById(long id) {
+    public static TigerTask getTigerTaskByName(String taskName) {
         Connection connection = MemoryShareDataRegion.connectionPool.getConnection();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select * from tiger_task where id=" + id);
+            ResultSet resultSet = statement.executeQuery("select * from tiger_task where task_name=" + taskName);
             List<TigerTask> tigerTaskList = new ArrayList<>();
             while (resultSet.next()) {
                 TigerTask tigerTask = new TigerTask();
@@ -30,6 +30,8 @@ public class TigerTaskDao {
             return tigerTaskList.get(0);
         } catch (SQLException throwables) {
             throw new RuntimeException(throwables);
+        } finally {
+            MemoryShareDataRegion.connectionPool.putBackConnection(connection);
         }
     }
 }

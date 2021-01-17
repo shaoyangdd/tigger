@@ -39,6 +39,11 @@ public class MemoryShareDataRegion {
     public static List<String> localAreaNetworkIp = new ArrayList<>();
 
     /**
+     * 局域网运行的IP顺序列表，包括本机IP
+     */
+    public static List<String> ipOrder = new ArrayList<>();
+
+    /**
      * 局域网运行的IP和Channel映射  client->server
      */
     public static Map<String, Channel> tigerRunningIpChannel = new ConcurrentHashMap<>();

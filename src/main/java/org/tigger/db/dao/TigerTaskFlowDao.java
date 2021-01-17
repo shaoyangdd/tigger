@@ -12,11 +12,11 @@ import java.util.List;
 
 public class TigerTaskFlowDao {
 
-    public static List<TigerTaskFlow> getTigerTaskFlow() {
+    public static List<TigerTaskFlow> getTigerTaskFlow(String previousId) {
         Connection connection = MemoryShareDataRegion.connectionPool.getConnection();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select * from tiger_task_flow where previous_task_id=''");
+            ResultSet resultSet = statement.executeQuery("select * from tiger_task_flow where previous_task_id='" + previousId + "'");
             List<TigerTaskFlow> tigerTaskFlows = new ArrayList<>();
             while (resultSet.next()) {
                 TigerTaskFlow tigerTaskFlow = new TigerTaskFlow();
@@ -31,6 +31,8 @@ public class TigerTaskFlowDao {
             return tigerTaskFlows;
         } catch (SQLException throwables) {
             throw new RuntimeException(throwables);
+        } finally {
+            MemoryShareDataRegion.connectionPool.putBackConnection(connection);
         }
     }
 
