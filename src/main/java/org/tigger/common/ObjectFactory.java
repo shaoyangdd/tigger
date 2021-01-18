@@ -1,6 +1,10 @@
 package org.tigger.common;
 
+import org.tigger.command.monitor.*;
 import org.tigger.communication.client.Client;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 对象工厂
@@ -25,5 +29,13 @@ public class ObjectFactory {
 
     public static Client getClient() {
         return new Client();
+    }
+
+    public static EventListener getEventListener() {
+        List<Monitor> monitorList = new ArrayList<>();
+        monitorList.add(new AppMonitor());
+        monitorList.add(new JvmMonitor());
+        monitorList.add(new SystemMonitor());
+        return new EventListener(monitorList);
     }
 }
