@@ -1,7 +1,7 @@
 package org.tigger.command;
 
-import org.tigger.common.MemoryShareDataRegion;
-import org.tigger.db.dao.entity.TigerTask;
+import org.tigger.common.cache.MemoryShareDataRegion;
+import org.tigger.database.dao.entity.TigerTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;

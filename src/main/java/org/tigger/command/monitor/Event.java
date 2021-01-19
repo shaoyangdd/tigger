@@ -7,8 +7,23 @@ package org.tigger.command.monitor;
  */
 public enum Event {
 
+    /**
+     * 任务流开始
+     */
+    TASK_FLOW_START,
+
+    /**
+     * 任务流结束
+     */
+    TASK_FLOW_COMPLETE,
+
+    /**
+     * 任务开始
+     */
     TASK_START,
 
+    /**
+     * 任务结束
+     */
     TASK_COMPLETE
-
 }

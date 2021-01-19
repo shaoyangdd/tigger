@@ -1,7 +1,8 @@
-package org.tigger.common;
+package org.tigger.common.cache;
 
 import io.netty.channel.Channel;
-import org.tigger.db.jdbc.ConnectionPool;
+import org.tigger.common.datastruct.TaskFlowGraph;
+import org.tigger.database.jdbc.ConnectionPool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -52,6 +53,11 @@ public class MemoryShareDataRegion {
      * 局域网运行的IP和Channel映射  server->client
      */
     public static Map<String, Channel> tigerRunningIpChannelS2C = new ConcurrentHashMap<>();
+
+    /**
+     * 任务流图 目前只支持一个图
+     */
+    public static TaskFlowGraph taskFlowGraph;
 
     /**
      * 运行状态

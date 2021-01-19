@@ -1,8 +1,7 @@
-package org.tigger.db.dao;
+package org.tigger.database.dao;
 
-import org.tigger.common.MemoryShareDataRegion;
-import org.tigger.db.dao.entity.TigerTask;
-import org.tigger.db.dao.entity.TigerTask;
+import org.tigger.common.cache.MemoryShareDataRegion;
+import org.tigger.database.dao.entity.TigerTask;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

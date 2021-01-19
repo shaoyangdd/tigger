@@ -1,4 +1,4 @@
-package org.tigger.db.dao.entity;
+package org.tigger.database.dao.entity;
 
 import java.sql.Timestamp;
 

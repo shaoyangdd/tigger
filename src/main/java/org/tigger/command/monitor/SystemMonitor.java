@@ -11,7 +11,7 @@ import java.util.Map;
 public class SystemMonitor implements Monitor {
 
     @Override
-    public void monit(Event event, Map<String, Object> parameter) {
+    public void monitor(Event event, Map<String, Object> parameter) {
 
     }
 }

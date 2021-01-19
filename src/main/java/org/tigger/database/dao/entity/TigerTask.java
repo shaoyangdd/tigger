@@ -1,4 +1,4 @@
-package org.tigger.db.dao.entity;
+package org.tigger.database.dao.entity;
 
 /**
  * tigger作业，对应作业表 tiger_task

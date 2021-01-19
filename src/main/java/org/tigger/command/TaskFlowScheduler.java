@@ -1,14 +1,14 @@
 package org.tigger.command;
 
 import org.tigger.command.monitor.Event;
-import org.tigger.common.MemoryShareDataRegion;
+import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.ObjectFactory;
-import org.tigger.db.dao.TigerTaskDao;
-import org.tigger.db.dao.TigerTaskExecuteDao;
-import org.tigger.db.dao.TigerTaskFlowDao;
-import org.tigger.db.dao.entity.TigerTask;
-import org.tigger.db.dao.entity.TigerTaskExecute;
-import org.tigger.db.dao.entity.TigerTaskFlow;
+import org.tigger.database.dao.TigerTaskDao;
+import org.tigger.database.dao.TigerTaskExecuteDao;
+import org.tigger.database.dao.TigerTaskFlowDao;
+import org.tigger.database.dao.entity.TigerTask;
+import org.tigger.database.dao.entity.TigerTaskExecute;
+import org.tigger.database.dao.entity.TigerTaskFlow;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -16,11 +16,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * tiger调度器  核心部分
+ * @author kangshaofei
+ * @date 2020-01-19
+ */
 public class TaskFlowScheduler {
 
     private static Logger logger = Logger.getLogger(TaskFlowScheduler.class.getSimpleName());
 
-    public static void execute(String previousId) {
+    public void execute(String previousId) {
+        //TODO 下面这一堆代码要改成使用TaskFlowGraph来遍历
         List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlow(previousId);
         if (tigerTaskFlowList.size() == 0) {
             return;
@@ -39,17 +45,11 @@ public class TaskFlowScheduler {
             //插入一条任务执行、
             long id = insertRunning(tigerTask);
             //启另一个线程去记录资源状态
-            ObjectFactory.getEventListener().listen(Event.TASK_START, null);
-            // TODO 写个匿名内部类来实现，实际应该用实现类
-            TaskExecutor taskExecutor = (taskName, parameter) -> {
-                // TODO 此处可以调用业务逻辑的代码，比如用springBatch可以调起springBatchJob
-                // TODO 根据taskName调用业务逻辑代码，传入参数。此处省略，用打印任务名和参数来模拟
-                System.out.println("本IP:" + MemoryShareDataRegion.ipOrder + "执行:" +taskName + "任务,参数:" + parameter);
-                return 4/2 == 2;
-            };
+            ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
+            //使用用户自定义的执行器执行任务(执行业务逻辑)
             boolean result;
             try {
-                result = taskExecutor.execute(tigerTask.getTaskName(), tigerTask.getTaskParameter());
+                result = ObjectFactory.instance().getTaskExecutor().execute(tigerTask.getTaskName(), tigerTask.getTaskParameter());
             } catch (Exception e) {
                 logger.info(e.getMessage());
                 result = false;
@@ -57,7 +57,7 @@ public class TaskFlowScheduler {
             // 更新执行状态记录耗时
             TigerTaskExecuteDao.updateAfterComplete(id, result);
             // 记录资源状态
-            ObjectFactory.getEventListener().listen(Event.TASK_START, null);
+            ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
         }
         for (String id : idList) {
             execute(id);

@@ -2,8 +2,18 @@ package org.tigger.command.monitor;
 
 import java.util.Map;
 
+/**
+ * 监视器接口
+ * @author kangshaofei
+ * @date 2020-01-19
+ */
 public interface Monitor {
 
-    void monit(Event event, Map<String,Object> parameter);
+    /**
+     * 监视
+     * @param event     事件
+     * @param parameter 参数
+     */
+    void monitor(Event event, Map<String,Object> parameter);
 
 }

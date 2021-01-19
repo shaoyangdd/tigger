@@ -1,20 +1,17 @@
 package org.tigger.communication.server;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.tigger.common.MemoryShareDataRegion;
+import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.ObjectFactory;
 import org.tigger.communication.client.Message;
 import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.Client;
 
-import java.util.List;
-import java.util.Queue;
 import java.util.logging.Logger;
 
 import static org.tigger.common.Constant.PORT;
@@ -84,7 +81,7 @@ public class MessageService {
         logger.info("缓存映射,IP:" + ip + "channel:" + incoming.id().asShortText());
 
         // 主动连它
-        Channel channel = ObjectFactory.getClient().connect(ip, PORT);
+        Channel channel = ObjectFactory.instance().getClient().connect(ip, PORT);
         if (channel != null) {
             MemoryShareDataRegion.tigerRunningIpChannel.put(ip,channel);
             logger.info("连接成功,IP:" + ip);

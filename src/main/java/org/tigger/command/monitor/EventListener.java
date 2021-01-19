@@ -13,7 +13,7 @@ public class EventListener {
 
     public void listen(Event event, Map<String,Object> parameters) {
         for (Monitor monitor : monitorList) {
-            monitor.monit(event, parameters);
+            monitor.monitor(event, parameters);
         }
     }
 }

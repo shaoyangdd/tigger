@@ -1,4 +1,4 @@
-package org.tigger.db.jdbc;
+package org.tigger.database.jdbc;
 
 import java.io.*;
 import java.util.Enumeration;

@@ -2,12 +2,13 @@ package org.tigger.command;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
-import org.tigger.common.MemoryShareDataRegion;
+import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.ObjectFactory;
+import org.tigger.common.datastruct.TaskFlowGraph;
 import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.server.Server;
-import org.tigger.db.jdbc.ConnectionPool;
+import org.tigger.database.jdbc.ConnectionPool;
 
 import java.util.Map;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import static org.tigger.common.Constant.PORT;
 import static org.tigger.communication.server.MessageType.ONLINE_NOTICE;
 
 /**
- * tigger启动要做的事
+ * tiger启动器  这里是入口
  * @author kangshaofei
  * @date 2020-01-16
  */
@@ -54,7 +55,10 @@ public class Starter {
         //5. 初始化数据库，建表，建立连接池 TODO 建表
         MemoryShareDataRegion.connectionPool = new ConnectionPool();
 
-        //6. 启动定时任务
+        //6. 初始化任务流图
+        MemoryShareDataRegion.taskFlowGraph = buildTaskFlowGraph();
+
+        //7. 启动定时任务
         AutoTrigger.run();
 
         logger.info("tiger 启动完成");
@@ -69,7 +73,7 @@ public class Starter {
         Map<String,Channel> map = new ConcurrentHashMap<>();
         MemoryShareDataRegion.localAreaNetworkIp.forEach(ip->{
             //只要端口开启就认为此IP上启动着tiger
-            Channel channel = ObjectFactory.getClient().connect(ip, PORT);
+            Channel channel = ObjectFactory.instance().getClient().connect(ip, PORT);
             if (channel != null) {
                 map.put(ip,channel);
             }
@@ -106,4 +110,9 @@ public class Starter {
         });
     }
 
+    private static TaskFlowGraph buildTaskFlowGraph() {
+        TaskFlowGraph taskFlowGraph = new TaskFlowGraph();
+        //TODO 构建TaskFlowGraph
+        return taskFlowGraph;
+    }
 }
