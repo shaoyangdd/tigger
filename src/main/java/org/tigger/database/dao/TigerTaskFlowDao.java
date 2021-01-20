@@ -12,7 +12,7 @@ import java.util.List;
 
 public class TigerTaskFlowDao {
 
-    public static List<TigerTaskFlow> getTigerTaskFlow(String previousId) {
+    public static List<TigerTaskFlow> getTigerTaskFlowByPreviousId(String previousId) {
         Connection connection = MemoryShareDataRegion.connectionPool.getConnection();
         try {
             Statement statement = connection.createStatement();
@@ -29,8 +29,8 @@ public class TigerTaskFlowDao {
                 tigerTaskFlows.add(tigerTaskFlow);
             }
             return tigerTaskFlows;
-        } catch (SQLException throwables) {
-            throw new RuntimeException(throwables);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             MemoryShareDataRegion.connectionPool.putBackConnection(connection);
         }

@@ -14,45 +14,58 @@ public class LogicTaskNode {
     /**
      * 前序一级同级节点
      */
-    private List<TigerTask> previousNodes;
+    private List<TigerTask> previousTigerTaskList;
 
     /**
      * 当前节点 （必须等前序一级同级节点都执行完）
      */
-    private TigerTask currentNode;
+    private TigerTask currentTigerTask;
 
     /**
      * 后序一级同级节点
      */
-    private List<TigerTask> nextNodes;
+    private List<TigerTask> nextTigerTaskList;
 
     /**
      * 假节点，空节点，特殊场景使用，如在此节点暂停住
      */
     private boolean isDummyNode;
 
-    public List<TigerTask> getPreviousNodes() {
-        return previousNodes;
+    /**
+     * 下一节点
+     */
+    private LogicTaskNode nextNode;
+
+    public List<TigerTask> getPreviousTigerTaskList() {
+        return previousTigerTaskList;
     }
 
-    public void setPreviousNodes(List<TigerTask> previousNodes) {
-        this.previousNodes = previousNodes;
+    public void setPreviousTigerTaskList(List<TigerTask> previousTigerTaskList) {
+        this.previousTigerTaskList = previousTigerTaskList;
     }
 
-    public TigerTask getCurrentNode() {
-        return currentNode;
+    public TigerTask getCurrentTigerTask() {
+        return currentTigerTask;
     }
 
-    public void setCurrentNode(TigerTask currentNode) {
-        this.currentNode = currentNode;
+    public void setCurrentTigerTask(TigerTask currentTigerTask) {
+        this.currentTigerTask = currentTigerTask;
     }
 
-    public List<TigerTask> getNextNodes() {
-        return nextNodes;
+    public List<TigerTask> getNextTigerTaskList() {
+        return nextTigerTaskList;
     }
 
-    public void setNextNodes(List<TigerTask> nextNodes) {
-        this.nextNodes = nextNodes;
+    public void setNextTigerTaskList(List<TigerTask> nextTigerTaskList) {
+        this.nextTigerTaskList = nextTigerTaskList;
+    }
+
+    public LogicTaskNode getNextNode() {
+        return nextNode;
+    }
+
+    public void setNextNode(LogicTaskNode nextNode) {
+        this.nextNode = nextNode;
     }
 
     public boolean isDummyNode() {
@@ -66,10 +79,11 @@ public class LogicTaskNode {
     @Override
     public String toString() {
         return "LogicTaskNode{" +
-                "previousNodes=" + previousNodes +
-                ", currentNode=" + currentNode +
-                ", nextNodes=" + nextNodes +
+                "previousTigerTaskList=" + previousTigerTaskList +
+                ", currentTigerTask=" + currentTigerTask +
+                ", nextTigerTaskList=" + nextTigerTaskList +
                 ", isDummyNode=" + isDummyNode +
+                ", nextNode=" + nextNode +
                 '}';
     }
 }

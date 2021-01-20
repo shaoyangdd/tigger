@@ -1,7 +1,7 @@
 package org.tigger.common.cache;
 
 import io.netty.channel.Channel;
-import org.tigger.common.datastruct.TaskFlowGraph;
+import org.tigger.common.datastruct.LogicTaskNode;
 import org.tigger.database.jdbc.ConnectionPool;
 
 import java.net.InetAddress;
@@ -57,7 +57,7 @@ public class MemoryShareDataRegion {
     /**
      * 任务流图 目前只支持一个图
      */
-    public static TaskFlowGraph taskFlowGraph;
+    public static LogicTaskNode taskNode;
 
     /**
      * 运行状态

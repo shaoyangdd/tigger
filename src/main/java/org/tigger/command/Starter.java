@@ -4,12 +4,18 @@ import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.ObjectFactory;
-import org.tigger.common.datastruct.TaskFlowGraph;
+import org.tigger.common.datastruct.LogicTaskNode;
 import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.server.Server;
+import org.tigger.database.dao.TigerTaskDao;
+import org.tigger.database.dao.TigerTaskFlowDao;
+import org.tigger.database.dao.entity.TigerTask;
+import org.tigger.database.dao.entity.TigerTaskFlow;
 import org.tigger.database.jdbc.ConnectionPool;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +62,7 @@ public class Starter {
         MemoryShareDataRegion.connectionPool = new ConnectionPool();
 
         //6. 初始化任务流图
-        MemoryShareDataRegion.taskFlowGraph = buildTaskFlowGraph();
+        MemoryShareDataRegion.taskNode = buildLogicTaskNode();
 
         //7. 启动定时任务
         AutoTrigger.run();
@@ -110,9 +116,43 @@ public class Starter {
         });
     }
 
-    private static TaskFlowGraph buildTaskFlowGraph() {
-        TaskFlowGraph taskFlowGraph = new TaskFlowGraph();
-        //TODO 构建TaskFlowGraph
-        return taskFlowGraph;
+    private static LogicTaskNode buildLogicTaskNode() {
+        // 头节点
+        LogicTaskNode head = new LogicTaskNode();
+        List<TigerTask> nextTigerTaskList = getNextTigerTaskList(EMPTY_STRING, true);
+        head.setPreviousTigerTaskList(null);
+        head.setCurrentTigerTask(null);
+        head.setNextTigerTaskList(nextTigerTaskList);
+        head.setDummyNode(false);
+        //body节点
+        buildNextNode(head, nextTigerTaskList);
+        return head;
+    }
+
+
+    private static List<TigerTask> getNextTigerTaskList(String previousId, boolean isHead) {
+        List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlowByPreviousId(previousId);
+        if (tigerTaskFlowList.size() == 0 && isHead) {
+            throw new RuntimeException("没有定义任务流");
+        }
+        List<TigerTask> tigerTaskList = new ArrayList<>();
+        for (TigerTaskFlow tigerTaskFlow : tigerTaskFlowList) {
+            tigerTaskList.add(TigerTaskDao.getTigerTaskByName(tigerTaskFlow.getTaskName()));
+        }
+        return tigerTaskList;
+    }
+
+    private static void buildNextNode(LogicTaskNode previousNode, List<TigerTask> nextTigerTaskList) {
+        for (TigerTask tigerTask : nextTigerTaskList) {
+            List<TigerTask> nextTigerTaskList2 = getNextTigerTaskList(String.valueOf(tigerTask.getId()), false);
+            LogicTaskNode node = new LogicTaskNode();
+            node.setPreviousTigerTaskList(null);
+            node.setCurrentTigerTask(tigerTask);
+            node.setNextTigerTaskList(nextTigerTaskList2);
+            node.setDummyNode(false);
+            previousNode.setNextNode(node);
+            //递归构建
+            buildNextNode(node, nextTigerTaskList2);
+        }
     }
 }

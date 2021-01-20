@@ -27,7 +27,7 @@ public class TaskFlowScheduler {
 
     public void execute(String previousId) {
         //TODO 下面这一堆代码要改成使用TaskFlowGraph来遍历
-        List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlow(previousId);
+        List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlowByPreviousId(previousId);
         if (tigerTaskFlowList.size() == 0) {
             return;
         }
