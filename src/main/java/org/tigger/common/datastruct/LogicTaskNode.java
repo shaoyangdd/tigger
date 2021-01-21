@@ -14,7 +14,7 @@ public class LogicTaskNode {
     /**
      * 前序一级同级节点
      */
-    private List<TigerTask> previousTigerTaskList;
+    private List<LogicTaskNode> previousTigerTaskList;
 
     /**
      * 当前节点 （必须等前序一级同级节点都执行完）
@@ -24,23 +24,18 @@ public class LogicTaskNode {
     /**
      * 后序一级同级节点
      */
-    private List<TigerTask> nextTigerTaskList;
+    private List<LogicTaskNode> nextTigerTaskList;
 
     /**
      * 假节点，空节点，特殊场景使用，如在此节点暂停住
      */
     private boolean isDummyNode;
 
-    /**
-     * 下一节点
-     */
-    private LogicTaskNode nextNode;
-
-    public List<TigerTask> getPreviousTigerTaskList() {
+    public List<LogicTaskNode> getPreviousTigerTaskList() {
         return previousTigerTaskList;
     }
 
-    public void setPreviousTigerTaskList(List<TigerTask> previousTigerTaskList) {
+    public void setPreviousTigerTaskList(List<LogicTaskNode> previousTigerTaskList) {
         this.previousTigerTaskList = previousTigerTaskList;
     }
 
@@ -52,20 +47,12 @@ public class LogicTaskNode {
         this.currentTigerTask = currentTigerTask;
     }
 
-    public List<TigerTask> getNextTigerTaskList() {
+    public List<LogicTaskNode> getNextTigerTaskList() {
         return nextTigerTaskList;
     }
 
-    public void setNextTigerTaskList(List<TigerTask> nextTigerTaskList) {
+    public void setNextTigerTaskList(List<LogicTaskNode> nextTigerTaskList) {
         this.nextTigerTaskList = nextTigerTaskList;
-    }
-
-    public LogicTaskNode getNextNode() {
-        return nextNode;
-    }
-
-    public void setNextNode(LogicTaskNode nextNode) {
-        this.nextNode = nextNode;
     }
 
     public boolean isDummyNode() {
@@ -83,7 +70,6 @@ public class LogicTaskNode {
                 ", currentTigerTask=" + currentTigerTask +
                 ", nextTigerTaskList=" + nextTigerTaskList +
                 ", isDummyNode=" + isDummyNode +
-                ", nextNode=" + nextNode +
                 '}';
     }
 }

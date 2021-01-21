@@ -2,15 +2,14 @@ package org.tigger.command;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
-import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.ObjectFactory;
+import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
 import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.server.Server;
 import org.tigger.database.dao.TigerTaskDao;
 import org.tigger.database.dao.TigerTaskFlowDao;
-import org.tigger.database.dao.entity.TigerTask;
 import org.tigger.database.dao.entity.TigerTaskFlow;
 import org.tigger.database.jdbc.ConnectionPool;
 
@@ -117,40 +116,46 @@ public class Starter {
     }
 
     private static LogicTaskNode buildLogicTaskNode() {
-        // 头节点
-        LogicTaskNode head = new LogicTaskNode();
-        List<TigerTask> nextTigerTaskList = getNextTigerTaskList(EMPTY_STRING, true);
-        head.setPreviousTigerTaskList(null);
-        head.setCurrentTigerTask(null);
-        head.setNextTigerTaskList(nextTigerTaskList);
-        head.setDummyNode(false);
+        // 伪头节点 创建伪头节点是为了保证头只有一个节点，好遍历及其它操作
+        LogicTaskNode fakeHead = new LogicTaskNode();
+        List<LogicTaskNode> realHeadNode = getNextTigerTaskList(EMPTY_STRING, true);
+        fakeHead.setPreviousTigerTaskList(null);
+        fakeHead.setCurrentTigerTask(null);
+        fakeHead.setNextTigerTaskList(realHeadNode);
+        fakeHead.setDummyNode(false);
         //body节点
-        buildNextNode(head, nextTigerTaskList);
-        return head;
+        buildNextNode(fakeHead, realHeadNode);
+        return fakeHead;
     }
 
 
-    private static List<TigerTask> getNextTigerTaskList(String previousId, boolean isHead) {
+    private static List<LogicTaskNode> getNextTigerTaskList(String previousId, boolean isHead) {
         List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlowByPreviousId(previousId);
         if (tigerTaskFlowList.size() == 0 && isHead) {
             throw new RuntimeException("没有定义任务流");
         }
-        List<TigerTask> tigerTaskList = new ArrayList<>();
+        List<LogicTaskNode> nodeList = new ArrayList<>();
         for (TigerTaskFlow tigerTaskFlow : tigerTaskFlowList) {
-            tigerTaskList.add(TigerTaskDao.getTigerTaskByName(tigerTaskFlow.getTaskName()));
+            LogicTaskNode logicTaskNode = new LogicTaskNode();
+            //先填上task
+            logicTaskNode.setCurrentTigerTask(TigerTaskDao.getTigerTaskByName(tigerTaskFlow.getTaskName()));
+            nodeList.add(logicTaskNode);
         }
-        return tigerTaskList;
+        return nodeList;
     }
 
-    private static void buildNextNode(LogicTaskNode previousNode, List<TigerTask> nextTigerTaskList) {
-        for (TigerTask tigerTask : nextTigerTaskList) {
-            List<TigerTask> nextTigerTaskList2 = getNextTigerTaskList(String.valueOf(tigerTask.getId()), false);
+    private static void buildNextNode(LogicTaskNode previousNode, List<LogicTaskNode> nextNodeList) {
+
+        List<LogicTaskNode> previousNodeList = new ArrayList<>(1);
+        previousNodeList.add(previousNode);
+
+        for (LogicTaskNode nextNode : nextNodeList) {
+            List<LogicTaskNode> nextTigerTaskList2 = getNextTigerTaskList(String.valueOf(nextNode.getCurrentTigerTask().getId()), false);
             LogicTaskNode node = new LogicTaskNode();
-            node.setPreviousTigerTaskList(null);
-            node.setCurrentTigerTask(tigerTask);
+            //再把节点的前后补上
+            node.setPreviousTigerTaskList(previousNodeList);
             node.setNextTigerTaskList(nextTigerTaskList2);
             node.setDummyNode(false);
-            previousNode.setNextNode(node);
             //递归构建
             buildNextNode(node, nextTigerTaskList2);
         }

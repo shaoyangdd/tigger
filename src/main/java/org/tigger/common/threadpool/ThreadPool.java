@@ -1,7 +1,15 @@
 package org.tigger.common.threadpool;
 
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * 线程池
+ *
+ * @author 康绍飞
+ * @date 2020-01-22
+ */
 public class ThreadPool {
 
     private static ThreadPoolExecutor poolExecutor;

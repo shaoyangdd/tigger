@@ -2,6 +2,7 @@ package org.tigger.common;
 
 import org.tigger.command.TaskExecutor;
 import org.tigger.command.TaskFlowScheduler;
+import org.tigger.command.TigerTaskExecutor;
 import org.tigger.command.monitor.*;
 import org.tigger.common.config.TigerConfiguration;
 import org.tigger.communication.client.Client;
@@ -23,6 +24,8 @@ public class ObjectFactory {
     private static ObjectFactory objectFactory;
 
     private TigerConfiguration tigerConfiguration;
+
+    private TigerTaskExecutor tigerTaskExecutor;
 
     private final Object lock = new Object();
 
@@ -72,6 +75,18 @@ public class ObjectFactory {
             }
         }
         return tigerConfiguration;
+    }
+
+    public TigerTaskExecutor getTigerExecutor() {
+        //DCL模式
+        if (tigerTaskExecutor == null) {
+            synchronized (lock) {
+                if (tigerTaskExecutor == null) {
+                    tigerTaskExecutor = new TigerTaskExecutor();
+                }
+            }
+        }
+        return tigerTaskExecutor;
     }
 
     public TaskExecutor setTaskExecutor(TaskExecutor taskExecutor) {
