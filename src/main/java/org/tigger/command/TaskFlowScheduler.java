@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * tiger调度器  (最核心的部分)
@@ -28,18 +29,28 @@ public class TaskFlowScheduler {
      */
     public void iterateAndExecute(LogicTaskNode head) {
         //LOOP 任务遍历
-        List<LogicTaskNode> nextNodeList = head.getNextTigerTaskList();
-        if (nextNodeList == null || nextNodeList.size() == 0) {
+        List<LogicTaskNode> nodeListForExecute = head.getNextTigerTaskList();
+        if (nodeListForExecute == null || nodeListForExecute.size() == 0) {
             //没有下一个节点时结束
             return;
         }
+        //0. 可执行任务和等待任务拆分
         List<TigerTask> tigerTaskList = new ArrayList<>();
-        for (LogicTaskNode logicTaskNode : nextNodeList) {
+        List<TigerTask> waitingTaskList = new ArrayList<>();
+        for (LogicTaskNode logicTaskNode : nodeListForExecute) {
             //TODO 前面有N个，这N个里面有没有执行完的，要等一等，等执行的执行机完了之后，大伙再重新分一下这个任务
+            List<TigerTask> list = logicTaskNode.getPreviousTigerTaskList()
+                    .stream().map(LogicTaskNode::getCurrentTigerTask)
+                    .collect(Collectors.toList());
+            if (hasExecutingTask(list)) {
+                waitingTaskList.add(logicTaskNode.getCurrentTigerTask());
+                //扔到外面线程池里去，你去等着吧，啥时候你那边前面的节点都执行完了你再过来，大伙一块分一下这个任务
 
-            tigerTaskList.add(logicTaskNode.getCurrentTigerTask());
+            } else {
+                tigerTaskList.add(logicTaskNode.getCurrentTigerTask());
+            }
         }
-        //1. 任务拆分
+        //1. 任务拆分，找到属于本IP的任务
         List<TigerTask> myTaskList = splitTask(tigerTaskList);
         if (myTaskList == null || myTaskList.size() == 0) {
             //没有本IP的任务，不用干活
@@ -48,12 +59,19 @@ public class TaskFlowScheduler {
         //2. 任务执行(本IP上多线程执行）
         for (TigerTask tigerTask : myTaskList) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
+                //TODO 通知其它IP上本任务开始运行
                 execute(tigerTask);
+                //TODO 通知其它IP本任务运行结束
             });
         }
         // TODO 等上面的都执行完之后，使用countDownLunch
-        //3. 递归并发遍历
-        for (LogicTaskNode logicTaskNode : nextNodeList) {
+
+        while (!(tigerTaskList.size() == 0 && waitingTaskList.size() == 0)) {
+            //自旋等上面任务完成
+        }
+
+        //3. 递归并发遍历去执行下一批节点
+        for (LogicTaskNode logicTaskNode : nodeListForExecute) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
                 iterateAndExecute(logicTaskNode);
             });
@@ -80,5 +98,10 @@ public class TaskFlowScheduler {
      */
     private void execute(TigerTask tigerTask) {
         ObjectFactory.instance().getTigerExecutor().executeTask(tigerTask);
+    }
+
+    private boolean hasExecutingTask(List<TigerTask> list) {
+        //TODO 判断是不是还有线程没执行完
+        return false;
     }
 }
