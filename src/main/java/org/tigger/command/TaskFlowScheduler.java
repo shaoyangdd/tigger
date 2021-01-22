@@ -1,8 +1,11 @@
 package org.tigger.command;
 
+import org.tigger.command.monitor.Event;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
+import org.tigger.common.datastruct.TaskExecuteStatus;
+import org.tigger.common.datastruct.TaskStatus;
 import org.tigger.common.threadpool.ThreadPool;
 import org.tigger.database.dao.entity.TigerTask;
 
@@ -34,22 +37,25 @@ public class TaskFlowScheduler {
             //没有下一个节点时结束
             return;
         }
-        //0. 可执行任务和等待任务拆分
+        //0. 可执行任务和等待任务(需要等待依赖的前面任务完成的任务)拆分
         List<TigerTask> tigerTaskList = new ArrayList<>();
-        List<TigerTask> waitingTaskList = new ArrayList<>();
+        List<LogicTaskNode> waitingTaskList = new ArrayList<>();
         for (LogicTaskNode logicTaskNode : nodeListForExecute) {
-            //TODO 前面有N个，这N个里面有没有执行完的，要等一等，等执行的执行机完了之后，大伙再重新分一下这个任务
-            List<TigerTask> list = logicTaskNode.getPreviousTigerTaskList()
+            //前面有N个，这N个里面有没有执行完的，要等一等，等执行的执行机完了之后，大伙再重新分一下这个任务
+            List<TigerTask> previousList = logicTaskNode.getPreviousTigerTaskList()
                     .stream().map(LogicTaskNode::getCurrentTigerTask)
                     .collect(Collectors.toList());
-            if (hasExecutingTask(list)) {
-                waitingTaskList.add(logicTaskNode.getCurrentTigerTask());
-                //扔到外面线程池里去，你去等着吧，啥时候你那边前面的节点都执行完了你再过来，大伙一块分一下这个任务
-
+            if (hasExecutingTask(previousList)) {
+                //等待任务
+                waitingTaskList.add(logicTaskNode);
             } else {
+                //可执行任务
                 tigerTaskList.add(logicTaskNode.getCurrentTigerTask());
             }
         }
+        //扔到外面线程池里去，你去等着吧，啥时候你那边前面的节点都执行完了你再过来，大伙一块分一下这个任务
+        monitor(waitingTaskList);
+
         //1. 任务拆分，找到属于本IP的任务
         List<TigerTask> myTaskList = splitTask(tigerTaskList);
         if (myTaskList == null || myTaskList.size() == 0) {
@@ -59,17 +65,17 @@ public class TaskFlowScheduler {
         //2. 任务执行(本IP上多线程执行）
         for (TigerTask tigerTask : myTaskList) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
-                //TODO 通知其它IP上本任务开始运行
+                //通知其它IP上本任务开始运行
+                ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
                 execute(tigerTask);
-                //TODO 通知其它IP本任务运行结束
+                //通知其它IP本任务运行结束
+                ObjectFactory.instance().getEventListener().listen(Event.TASK_COMPLETE, null);
             });
         }
-        // TODO 等上面的都执行完之后，使用countDownLunch
-
+        //等上面的都执行完
         while (!(tigerTaskList.size() == 0 && waitingTaskList.size() == 0)) {
             //自旋等上面任务完成
         }
-
         //3. 递归并发遍历去执行下一批节点
         for (LogicTaskNode logicTaskNode : nodeListForExecute) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
@@ -100,8 +106,40 @@ public class TaskFlowScheduler {
         ObjectFactory.instance().getTigerExecutor().executeTask(tigerTask);
     }
 
-    private boolean hasExecutingTask(List<TigerTask> list) {
-        //TODO 判断是不是还有线程没执行完
+    /**
+     * 判断是不是还有IP没执行完
+     *
+     * @param previousList 前面任务
+     * @return false:前面任务都已完成，true:前面任务非都已完成
+     */
+    private boolean hasExecutingTask(List<TigerTask> previousList) {
+        for (TigerTask tigerTask : previousList) {
+            List<TaskExecuteStatus> list1 = MemoryShareDataRegion.taskExecuteStatus.stream()
+                    .filter(taskExecuteStatus -> taskExecuteStatus.getTigerTask().getId() == tigerTask.getId())
+                    .collect(Collectors.toList());
+            for (TaskExecuteStatus taskExecuteStatus : list1) {
+                if (taskExecuteStatus.getTaskStatus() != TaskStatus.COMPLETE) {
+                    return true;
+                }
+            }
+        }
         return false;
+    }
+
+    /**
+     * 监控未完成的任务，完成后移出未完成队列
+     *
+     * @param waitingTaskList 未完成任务
+     */
+    private void monitor(List<LogicTaskNode> waitingTaskList) {
+        ThreadPool.getThreadPoolExecutor().execute(() -> {
+            for (LogicTaskNode logicTaskNode : waitingTaskList) {
+                List<TigerTask> list = logicTaskNode.getPreviousTigerTaskList()
+                        .stream().map(LogicTaskNode::getCurrentTigerTask).collect(Collectors.toList());
+                if (!hasExecutingTask(list)) {
+                    waitingTaskList.remove(logicTaskNode);
+                }
+            }
+        });
     }
 }
