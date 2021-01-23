@@ -11,9 +11,10 @@ public interface Monitor {
 
     /**
      * 监视
+     *
      * @param event     事件
      * @param parameter 参数
      */
-    void monitor(Event event, Map<String,Object> parameter);
+    void monitor(Event event, Map<String, ? extends Object> parameter);
 
 }

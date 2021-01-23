@@ -11,7 +11,7 @@ public class EventListener {
         this.monitorList = monitorList;
     }
 
-    public void listen(Event event, Map<String,Object> parameters) {
+    public void listen(Event event, Map<String, ?> parameters) {
         for (Monitor monitor : monitorList) {
             monitor.monitor(event, parameters);
         }

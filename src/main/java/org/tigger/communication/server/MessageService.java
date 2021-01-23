@@ -6,14 +6,20 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.tigger.common.cache.MemoryShareDataRegion;
+import org.tigger.command.monitor.Event;
 import org.tigger.common.ObjectFactory;
+import org.tigger.common.cache.MemoryShareDataRegion;
+import org.tigger.common.util.TigerUtil;
+import org.tigger.communication.client.Client;
 import org.tigger.communication.client.Message;
 import org.tigger.communication.client.MessageProtobuf;
-import org.tigger.communication.client.Client;
+import org.tigger.database.dao.entity.TigerTask;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import static org.tigger.common.Constant.IP;
 import static org.tigger.common.Constant.PORT;
 
 /**
@@ -36,31 +42,29 @@ public class MessageService {
      */
     public static void processMessage(ChannelHandlerContext ctx, MessageProtobuf.Msg msg) {
         MessageType messageType = MessageType.getMsgType(msg.getHead().getMsgType());
+        String body = msg.getContent().getContent();
+        String ip = ctx.channel().remoteAddress().toString();
         switch (messageType) {
-            case ONLINE_NOTICE :
+            case ONLINE_NOTICE:
                 processOnlineNotice(ctx, msg);
+                break;
+            case TASK_START:
+                TigerTask tigerTask = JSON.parseObject(body, TigerTask.class);
+                Map<String, Object> param = new HashMap<>();
+                param.put(TigerUtil.TIGER_TASK_PARAM_MAP_KEY, tigerTask);
+                param.put(IP, ip);
+                ObjectFactory.instance().getEventHandlerRegistry().getEventHandler(Event.TASK_START).handle(param);
+                break;
+            case TASK_COMPLETE:
+                TigerTask tigerTaskComplete = JSON.parseObject(body, TigerTask.class);
+                Map<String, Object> param2 = new HashMap<>();
+                param2.put(IP, ip);
+                param2.put(TigerUtil.TIGER_TASK_PARAM_MAP_KEY, tigerTaskComplete);
+                ObjectFactory.instance().getEventHandlerRegistry().getEventHandler(Event.TASK_COMPLETE).handle(param2);
                 break;
             default:
                 doNothing();
         }
-
-//        if (MessageType.ONLINE_NOTICE.getMsgType() == msg.getHead().getMsgType()) {
-//            bind(ctx, msg);
-//        } else if (MessageType.SINGLE_CHAT.getMsgType() == msg.getHead().getMsgType()) {
-//            singleChat(ctx, msg);
-//        } else if (MessageType.HEARTBEAT.getMsgType() == msg.getHead().getMsgType()) {
-//            heartBeat(ctx, msg);
-//        } else if (MessageType.QUERY_ONLINE_USER.getMsgType() == msg.getHead().getMsgType()) {
-//            queryOnlineUsers(ctx, msg);
-//        } else if (MessageType.DELETE_ONLINE_USER.getMsgType() == msg.getHead().getMsgType()) {
-//            deleteOnlineUsers(ctx, msg);
-//        } else if (MessageType.QUERY_OFFLINE_MESSAGE.getMsgType() == msg.getHead().getMsgType()) {
-//            queryOfflineMessage(ctx, msg);
-//        } else if (MessageType.DELETE_OFFLINE_MESSAGE.getMsgType() == msg.getHead().getMsgType()) {
-//            deleteOfflineMessage(ctx, msg);
-//        } else {
-//            logger.info("收到客户端" + ctx.channel().id().asShortText() + "的消息类型错误:" + JSON.toJSONString(new Message(msg)));
-//        }
     }
 
     private static void doNothing() {

@@ -5,8 +5,8 @@ import io.netty.channel.Channel;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
-import org.tigger.communication.client.MessageProtobuf;
 import org.tigger.communication.client.util.NetUtil;
+import org.tigger.communication.message.encoder.TigerMessageEncoder;
 import org.tigger.communication.server.Server;
 import org.tigger.database.dao.TigerTaskDao;
 import org.tigger.database.dao.TigerTaskFlowDao;
@@ -16,7 +16,6 @@ import org.tigger.database.jdbc.ConnectionPool;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -66,17 +65,27 @@ public class Starter {
         //7. 启动定时任务
         AutoTrigger.run();
 
+        //TODO 启动心跳
+
+
         logger.info("tiger 启动完成");
+    }
+
+    private static void onlineNotice() {
+        MemoryShareDataRegion.tigerRunningIpChannel.forEach((k, v) -> {
+            v.writeAndFlush(TigerMessageEncoder.encode(ONLINE_NOTICE.getMsgType(), "上线通知"));
+        });
     }
 
     /**
      * 获取有Tiger运行的IP\channel映射
+     *
      * @return ip
      */
     private static Map<String, Channel> getTigerRunningIp() {
         //暂时使用parallelStream多线程提高效率，如果执行机规模庞大时,选择
-        Map<String,Channel> map = new ConcurrentHashMap<>();
-        MemoryShareDataRegion.localAreaNetworkIp.forEach(ip->{
+        Map<String, Channel> map = new ConcurrentHashMap<>();
+        MemoryShareDataRegion.localAreaNetworkIp.forEach(ip -> {
             //只要端口开启就认为此IP上启动着tiger
             Channel channel = ObjectFactory.instance().getClient().connect(ip, PORT);
             if (channel != null) {
@@ -86,34 +95,7 @@ public class Starter {
         return map;
     }
 
-    /**
-     * 上线通知其它实例
-     */
-    private static void onlineNotice() {
-        MemoryShareDataRegion.tigerRunningIpChannel.forEach((k,v)->{
-            MessageProtobuf.Body.Builder bodyBuilder = MessageProtobuf.Body.newBuilder();
 
-            MessageProtobuf.Head.Builder headOrBuilder = MessageProtobuf.Head.newBuilder();
-            headOrBuilder.setSeq(0);
-            headOrBuilder.setTarget(EMPTY_STRING);
-            headOrBuilder.setTimestamp(System.currentTimeMillis());
-            headOrBuilder.setMsgId(UUID.randomUUID().toString());
-            headOrBuilder.setFrom(MemoryShareDataRegion.localIp);
-            headOrBuilder.setMsgType(ONLINE_NOTICE.getMsgType());
-            headOrBuilder.setExtend(EMPTY_STRING);
-            headOrBuilder.setStatus(0);
-
-            MessageProtobuf.Msg.Builder msgBuilder = MessageProtobuf.Msg.newBuilder();
-            msgBuilder.setHead(headOrBuilder);
-            bodyBuilder.setType(0);
-            bodyBuilder.setUrl(EMPTY_STRING);
-            bodyBuilder.setExtra(EMPTY_STRING);
-            bodyBuilder.setContent("上线通知");
-            msgBuilder.setBody(bodyBuilder);
-            logger.info("上线通知:" + k);
-            v.writeAndFlush(msgBuilder.build());
-        });
-    }
 
     private static LogicTaskNode buildLogicTaskNode() {
         // 伪头节点 创建伪头节点是为了保证头只有一个节点，好遍历及其它操作

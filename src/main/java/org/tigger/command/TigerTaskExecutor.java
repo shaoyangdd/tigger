@@ -1,6 +1,5 @@
 package org.tigger.command;
 
-import org.tigger.command.monitor.Event;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.database.dao.TigerTaskExecuteDao;
@@ -18,7 +17,7 @@ public class TigerTaskExecutor {
         //插入一条任务执行、
         long id = insertRunning(tigerTask);
         //启另一个线程去记录资源状态
-        ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
+        //ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
         boolean result;
         try {
             //使用用户自定义的执行器执行任务(执行业务逻辑)
@@ -30,7 +29,7 @@ public class TigerTaskExecutor {
         // 更新执行状态记录耗时
         TigerTaskExecuteDao.updateAfterComplete(id, result);
         // 任务结束监听操作（广播状态等）
-        ObjectFactory.instance().getEventListener().listen(Event.TASK_COMPLETE, null);
+        //ObjectFactory.instance().getEventListener().listen(Event.TASK_COMPLETE, null);
         return result;
     }
 

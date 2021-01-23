@@ -7,6 +7,7 @@ import org.tigger.common.datastruct.LogicTaskNode;
 import org.tigger.common.datastruct.TaskExecuteStatus;
 import org.tigger.common.datastruct.TaskStatus;
 import org.tigger.common.threadpool.ThreadPool;
+import org.tigger.common.util.TigerUtil;
 import org.tigger.database.dao.entity.TigerTask;
 
 import java.util.ArrayList;
@@ -60,16 +61,18 @@ public class TaskFlowScheduler {
         List<TigerTask> myTaskList = splitTask(tigerTaskList);
         if (myTaskList == null || myTaskList.size() == 0) {
             //没有本IP的任务，不用干活
+            logger.info("没有本IP的任务，不用干活");
             return;
         }
         //2. 任务执行(本IP上多线程执行）
         for (TigerTask tigerTask : myTaskList) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
                 //通知其它IP上本任务开始运行
-                ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
+                Map<String, TigerTask> param = TigerUtil.buildTigerTaskParamMap(tigerTask);
+                ObjectFactory.instance().getEventListener().listen(Event.TASK_START, param);
                 execute(tigerTask);
                 //通知其它IP本任务运行结束
-                ObjectFactory.instance().getEventListener().listen(Event.TASK_COMPLETE, null);
+                ObjectFactory.instance().getEventListener().listen(Event.TASK_COMPLETE, param);
             });
         }
         //等上面的都执行完

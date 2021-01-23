@@ -4,6 +4,9 @@ import org.tigger.command.TaskExecutor;
 import org.tigger.command.TaskFlowScheduler;
 import org.tigger.command.TigerTaskExecutor;
 import org.tigger.command.monitor.*;
+import org.tigger.command.receive_event_handler.EventHandlerRegistry;
+import org.tigger.command.receive_event_handler.TaskCompleteEventHandler;
+import org.tigger.command.receive_event_handler.TaskStartEventHandler;
 import org.tigger.common.config.TigerConfiguration;
 import org.tigger.communication.client.Client;
 
@@ -11,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 对象工厂
+ * 对象工厂,为了代码轻量，不使用任何IOC框架
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
@@ -27,10 +31,13 @@ public class ObjectFactory {
 
     private TigerTaskExecutor tigerTaskExecutor;
 
+    private EventListener eventListener;
+
+    private EventHandlerRegistry eventHandlerRegistry;
+
     private final Object lock = new Object();
 
     public static ObjectFactory instance() {
-        //DCL模式
         if (objectFactory == null) {
             synchronized (ObjectFactory.class) {
                 if (objectFactory == null) {
@@ -46,15 +53,22 @@ public class ObjectFactory {
     }
 
     public EventListener getEventListener() {
-        List<Monitor> monitorList = new ArrayList<>();
-        monitorList.add(new AppMonitor());
-        monitorList.add(new JvmMonitor());
-        monitorList.add(new SystemMonitor());
-        return new EventListener(monitorList);
+        if (eventListener == null) {
+            synchronized (lock) {
+                if (eventListener == null) {
+                    List<Monitor> monitorList = new ArrayList<>();
+                    monitorList.add(new AppMonitor());
+                    monitorList.add(new JvmMonitor());
+                    monitorList.add(new SystemMonitor());
+                    monitorList.add(new WarnMonitor());
+                    new EventListener(monitorList);
+                }
+            }
+        }
+        return eventListener;
     }
 
     public TaskFlowScheduler getTaskFlowScheduler() {
-        //DCL模式
         if (taskFlowScheduler == null) {
             synchronized (lock) {
                 if (taskFlowScheduler == null) {
@@ -66,7 +80,6 @@ public class ObjectFactory {
     }
 
     public TigerConfiguration getTigerConfiguration() {
-        //DCL模式
         if (tigerConfiguration == null) {
             synchronized (lock) {
                 if (tigerConfiguration == null) {
@@ -78,7 +91,6 @@ public class ObjectFactory {
     }
 
     public TigerTaskExecutor getTigerExecutor() {
-        //DCL模式
         if (tigerTaskExecutor == null) {
             synchronized (lock) {
                 if (tigerTaskExecutor == null) {
@@ -90,7 +102,6 @@ public class ObjectFactory {
     }
 
     public TaskExecutor setTaskExecutor(TaskExecutor taskExecutor) {
-        //DCL模式
         if (this.taskExecutor == null) {
             synchronized (lock) {
                 if (this.taskExecutor == null) {
@@ -106,5 +117,19 @@ public class ObjectFactory {
             throw new RuntimeException("请参考手册配置TaskExecutor!");
         }
         return taskExecutor;
+    }
+
+    public EventHandlerRegistry getEventHandlerRegistry() {
+        if (eventHandlerRegistry == null) {
+            synchronized (lock) {
+                if (eventHandlerRegistry == null) {
+                    EventHandlerRegistry eventHandlerRegistry = new EventHandlerRegistry();
+                    eventHandlerRegistry.registry(Event.TASK_START, new TaskStartEventHandler());
+                    eventHandlerRegistry.registry(Event.TASK_COMPLETE, new TaskCompleteEventHandler());
+                    return eventHandlerRegistry;
+                }
+            }
+        }
+        return eventHandlerRegistry;
     }
 }

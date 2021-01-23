@@ -8,4 +8,6 @@ public interface Constant {
     int PORT = 9999;
 
     String EMPTY_STRING = "";
+
+    String IP = "ipKey";
 }

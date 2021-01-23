@@ -16,9 +16,14 @@ public enum MessageType {
     HEARTBEAT(1002),
 
     /*
-     * 客户端提交的消息接收状态报告
+     * 任务开始广播
      */
-    CLIENT_MSG_RECEIVED_STATUS_REPORT(1009),
+    TASK_START(1009),
+
+    /*
+     * 任务结束广播
+     */
+    TASK_COMPLETE(1009),
 
     /*
      * 服务端返回的消息发送状态报告
