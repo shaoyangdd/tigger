@@ -10,4 +10,14 @@ public interface Constant {
     String EMPTY_STRING = "";
 
     String IP = "ipKey";
+
+    /**
+     * 心跳间隔时间 TODO 先写死，后面看看怎么做到可配置化
+     */
+    long HEART_BEAT_SLEEP_TIME = 20000L;
+
+    /**
+     * 心跳间隔时间 TODO 先写死，后面看看怎么做到可配置化
+     */
+    long HEART_BEAT_CHECK_SLEEP_TIME = 30000L;
 }

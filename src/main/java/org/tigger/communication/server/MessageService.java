@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.tigger.command.monitor.Event;
+import org.tigger.command.Event;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.util.TigerUtil;
@@ -48,12 +48,17 @@ public class MessageService {
             case ONLINE_NOTICE:
                 processOnlineNotice(ctx, msg);
                 break;
+            case HEARTBEAT:
+                Map<String, Object> param0 = new HashMap<>();
+                param0.put(IP, ip);
+                ObjectFactory.instance().getEventHandlerRegistry().getEventHandler(Event.HEART_BEAT).handle(param0);
+                break;
             case TASK_START:
                 TigerTask tigerTask = JSON.parseObject(body, TigerTask.class);
-                Map<String, Object> param = new HashMap<>();
-                param.put(TigerUtil.TIGER_TASK_PARAM_MAP_KEY, tigerTask);
-                param.put(IP, ip);
-                ObjectFactory.instance().getEventHandlerRegistry().getEventHandler(Event.TASK_START).handle(param);
+                Map<String, Object> param1 = new HashMap<>();
+                param1.put(TigerUtil.TIGER_TASK_PARAM_MAP_KEY, tigerTask);
+                param1.put(IP, ip);
+                ObjectFactory.instance().getEventHandlerRegistry().getEventHandler(Event.TASK_START).handle(param1);
                 break;
             case TASK_COMPLETE:
                 TigerTask tigerTaskComplete = JSON.parseObject(body, TigerTask.class);

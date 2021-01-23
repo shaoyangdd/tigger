@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
+import org.tigger.common.threadpool.ThreadPool;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.message.encoder.TigerMessageEncoder;
 import org.tigger.communication.server.Server;
@@ -19,8 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-import static org.tigger.common.Constant.EMPTY_STRING;
-import static org.tigger.common.Constant.PORT;
+import static org.tigger.command.Event.HEART_BEAT;
+import static org.tigger.common.Constant.*;
 import static org.tigger.communication.server.MessageType.ONLINE_NOTICE;
 
 /**
@@ -56,19 +57,60 @@ public class Starter {
         onlineNotice();
         logger.info("上线通知结束...");
 
-        //5. 初始化数据库，建表，建立连接池 TODO 建表
+        //5. 启动心跳
+        logger.info("启动心跳");
+        startHeartBeat();
+
+        //6. 初始化数据库，建表，建立连接池 TODO 建表
         MemoryShareDataRegion.connectionPool = new ConnectionPool();
 
-        //6. 初始化任务流图
+        //7. 初始化任务流图
         MemoryShareDataRegion.taskNode = buildLogicTaskNode();
 
-        //7. 启动定时任务
+        //8. 启动定时任务
         AutoTrigger.run();
 
-        //TODO 启动心跳
-
-
         logger.info("tiger 启动完成");
+    }
+
+    /**
+     * 启动心跳
+     */
+    private static void startHeartBeat() {
+        //每隔一段时间发一次心跳
+        ThreadPool.getThreadPoolExecutor().execute(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(HEART_BEAT_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                ObjectFactory.instance().getEventHandlerRegistry().getSendEventHandler(HEART_BEAT).sendHandle(null);
+            }
+        });
+        //启动后台看下是否有别的执行机掉线
+        ThreadPool.getThreadPoolExecutor().execute(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(HEART_BEAT_CHECK_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                Map<String, Long> ipTime = MemoryShareDataRegion.heartBeatTime;
+                for (Map.Entry<String, Long> entry : ipTime.entrySet()) {
+                    if (System.currentTimeMillis() - entry.getValue() > (2 * HEART_BEAT_SLEEP_TIME)) {
+                        //下线操作 TODO 这块可能有线程安全问题，后面再考虑
+                        ipTime.remove(entry.getKey());
+                        MemoryShareDataRegion.localAreaNetworkIp.remove(entry.getKey());
+                        MemoryShareDataRegion.ipOrder.remove(entry.getKey());
+                        MemoryShareDataRegion.tigerRunningIpChannel.remove(entry.getKey());
+                        MemoryShareDataRegion.tigerRunningIpChannelS2C.remove(entry.getKey());
+                        //TODO 如果正在运行任务，需要做故障转移
+                    }
+                }
+            }
+
+        });
     }
 
     private static void onlineNotice() {

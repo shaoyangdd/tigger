@@ -46,6 +46,11 @@ public class MemoryShareDataRegion {
     public static List<String> ipOrder = new ArrayList<>();
 
     /**
+     * 心跳最新时间 key :ip,value: 时间戳
+     */
+    public static Map<String, Long> heartBeatTime = new ConcurrentHashMap<>();
+
+    /**
      * 局域网运行的IP和Channel映射  client->server
      */
     public static Map<String, Channel> tigerRunningIpChannel = new ConcurrentHashMap<>();

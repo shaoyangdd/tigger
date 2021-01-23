@@ -1,11 +1,17 @@
-package org.tigger.command.monitor;
+package org.tigger.command;
 
 /**
  * 监视事件
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
 public enum Event {
+
+    /**
+     * 心跳
+     */
+    HEART_BEAT,
 
     /**
      * 任务流开始

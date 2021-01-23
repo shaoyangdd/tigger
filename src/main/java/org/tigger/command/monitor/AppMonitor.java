@@ -3,6 +3,7 @@ package org.tigger.command.monitor;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tigger.command.Event;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.util.TigerUtil;
 import org.tigger.communication.message.encoder.TigerMessageEncoder;
@@ -31,15 +32,40 @@ public class AppMonitor implements Monitor {
     public void monitor(Event event, Map<String, ?> parameter) {
         //TODO 监视进度，实时展示在控制台。任务流图进度，权重计算
         switch (event) {
+            case TASK_FLOW_START:
+                taskFlowStart(parameter);
+                break;
             case TASK_START:
                 taskStart(parameter);
                 break;
             case TASK_COMPLETE:
                 taskComplete(parameter);
                 break;
+            case TASK_FLOW_COMPLETE:
+                taskFlowComplete(parameter);
+                break;
             default:
                 logger.info("非法 event!" + event);
         }
+    }
+
+    /**
+     * 任务流结束
+     *
+     * @param parameter 参数
+     */
+    private void taskFlowStart(Map<String, ?> parameter) {
+
+    }
+
+    /**
+     * 任务流结束
+     *
+     * @param parameter 参数
+     */
+    private void taskFlowComplete(Map<String, ?> parameter) {
+        //初始化运行状态
+        MemoryShareDataRegion.taskExecuteStatus.clear();
     }
 
     /**

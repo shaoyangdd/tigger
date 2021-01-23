@@ -1,6 +1,5 @@
 package org.tigger.command;
 
-import org.tigger.command.monitor.Event;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
@@ -135,14 +134,17 @@ public class TaskFlowScheduler {
      * @param waitingTaskList 未完成任务
      */
     private void monitor(List<LogicTaskNode> waitingTaskList) {
-        ThreadPool.getThreadPoolExecutor().execute(() -> {
-            for (LogicTaskNode logicTaskNode : waitingTaskList) {
-                List<TigerTask> list = logicTaskNode.getPreviousTigerTaskList()
-                        .stream().map(LogicTaskNode::getCurrentTigerTask).collect(Collectors.toList());
-                if (!hasExecutingTask(list)) {
-                    waitingTaskList.remove(logicTaskNode);
+        for (LogicTaskNode logicTaskNode : waitingTaskList) {
+            ThreadPool.getThreadPoolExecutor().execute(() -> {
+                while (true) {
+                    List<TigerTask> list = logicTaskNode.getPreviousTigerTaskList()
+                            .stream().map(LogicTaskNode::getCurrentTigerTask).collect(Collectors.toList());
+                    if (!hasExecutingTask(list)) {
+                        waitingTaskList.remove(logicTaskNode);
+                        break;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }

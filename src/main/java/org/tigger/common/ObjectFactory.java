@@ -1,12 +1,15 @@
 package org.tigger.common;
 
+import org.tigger.command.Event;
 import org.tigger.command.TaskExecutor;
 import org.tigger.command.TaskFlowScheduler;
 import org.tigger.command.TigerTaskExecutor;
 import org.tigger.command.monitor.*;
 import org.tigger.command.receive_event_handler.EventHandlerRegistry;
+import org.tigger.command.receive_event_handler.HeartbeatEventHandler;
 import org.tigger.command.receive_event_handler.TaskCompleteEventHandler;
 import org.tigger.command.receive_event_handler.TaskStartEventHandler;
+import org.tigger.command.send_event_handler.HeartbeatSendEventHandler;
 import org.tigger.common.config.TigerConfiguration;
 import org.tigger.communication.client.Client;
 
@@ -126,6 +129,9 @@ public class ObjectFactory {
                     EventHandlerRegistry eventHandlerRegistry = new EventHandlerRegistry();
                     eventHandlerRegistry.registry(Event.TASK_START, new TaskStartEventHandler());
                     eventHandlerRegistry.registry(Event.TASK_COMPLETE, new TaskCompleteEventHandler());
+
+                    eventHandlerRegistry.registry(Event.HEART_BEAT, new HeartbeatEventHandler());
+                    eventHandlerRegistry.registry(Event.HEART_BEAT, new HeartbeatSendEventHandler());
                     return eventHandlerRegistry;
                 }
             }
