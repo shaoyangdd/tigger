@@ -7,7 +7,7 @@ import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.TaskExecuteStatus;
 import org.tigger.common.datastruct.TaskStatus;
 import org.tigger.common.util.TigerUtil;
-import org.tigger.database.dao.entity.TigerTask;
+import org.tigger.persistence.database.dao.entity.TigerTask;
 
 import java.util.Map;
 

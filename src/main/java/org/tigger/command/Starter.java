@@ -9,10 +9,10 @@ import org.tigger.common.threadpool.ThreadPool;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.message.encoder.TigerMessageEncoder;
 import org.tigger.communication.server.Server;
-import org.tigger.database.dao.TigerTaskDao;
-import org.tigger.database.dao.TigerTaskFlowDao;
-import org.tigger.database.dao.entity.TigerTaskFlow;
-import org.tigger.database.jdbc.ConnectionPool;
+import org.tigger.persistence.database.dao.TigerTaskDao;
+import org.tigger.persistence.database.dao.TigerTaskFlowDao;
+import org.tigger.persistence.database.dao.entity.TigerTaskFlow;
+import org.tigger.persistence.database.jdbc.ConnectionPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,43 +34,44 @@ public class Starter {
     private static Logger logger = Logger.getLogger(Starter.class.getSimpleName());
 
     public static void run() {
+        ThreadPool.getThreadPoolExecutor().execute(() -> {
+            logger.info("tiger 启动开始...");
 
-        logger.info("tiger 启动开始...");
+            //1. 启动Server
+            logger.info("启动Server开始...");
+            new Server(PORT).run();
+            logger.info("启动Server结束");
 
-        //1. 启动Server
-        logger.info("启动Server开始...");
-        new Server(PORT).run();
-        logger.info("启动Server结束");
+            //2. 获取并缓存局域网所有IP
+            logger.info("获取并缓存局域网所有IP开始...");
+            MemoryShareDataRegion.localAreaNetworkIp.addAll(NetUtil.getIPsByWindows());
+            logger.info("获取并缓存局域网所有IP结束");
 
-        //2. 获取并缓存局域网所有IP
-        logger.info("获取并缓存局域网所有IP开始...");
-        MemoryShareDataRegion.localAreaNetworkIp.addAll(NetUtil.getIPsByWindows());
-        logger.info("获取并缓存局域网所有IP结束");
+            //3. 获取有Tiger运行的IP
+            logger.info("获取有Tiger运行的IP开始...");
+            MemoryShareDataRegion.tigerRunningIpChannel.putAll(getTigerRunningIp());
+            logger.info("获取有Tiger运行的IP结束" + JSON.toJSONString(MemoryShareDataRegion.tigerRunningIpChannel));
 
-        //3. 获取有Tiger运行的IP
-        logger.info("获取有Tiger运行的IP开始...");
-        MemoryShareDataRegion.tigerRunningIpChannel.putAll(getTigerRunningIp());
-        logger.info("获取有Tiger运行的IP结束" + JSON.toJSONString(MemoryShareDataRegion.tigerRunningIpChannel));
+            //4. 上线通知
+            logger.info("上线通知开始...");
+            onlineNotice();
+            logger.info("上线通知结束...");
 
-        //4. 上线通知
-        logger.info("上线通知开始...");
-        onlineNotice();
-        logger.info("上线通知结束...");
+            //5. 启动心跳
+            logger.info("启动心跳");
+            startHeartBeat();
 
-        //5. 启动心跳
-        logger.info("启动心跳");
-        startHeartBeat();
+            //6. 初始化数据库，建表，建立连接池 TODO 建表
+            MemoryShareDataRegion.connectionPool = new ConnectionPool();
 
-        //6. 初始化数据库，建表，建立连接池 TODO 建表
-        MemoryShareDataRegion.connectionPool = new ConnectionPool();
+            //7. 初始化任务流图
+            MemoryShareDataRegion.taskNode = buildLogicTaskNode();
 
-        //7. 初始化任务流图
-        MemoryShareDataRegion.taskNode = buildLogicTaskNode();
+            //8. 启动定时任务
+            AutoTrigger.run();
 
-        //8. 启动定时任务
-        AutoTrigger.run();
-
-        logger.info("tiger 启动完成");
+            logger.info("tiger 启动完成");
+        });
     }
 
     /**

@@ -1,6 +1,6 @@
 package org.tigger.common.datastruct;
 
-import org.tigger.database.dao.entity.TigerTask;
+import org.tigger.persistence.database.dao.entity.TigerTask;
 
 /**
  * 任务运行状态

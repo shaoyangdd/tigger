@@ -1,7 +1,6 @@
-package org.tigger.database.dao;
+package org.tigger.persistence.database.dao;
 
-import org.tigger.common.cache.MemoryShareDataRegion;
-import org.tigger.database.dao.entity.TigerTask;
+import org.tigger.persistence.database.dao.entity.TigerTask;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,13 +9,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TigerTaskDao {
+public class TigerTaskDao extends BaseDao {
 
     public static TigerTask getTigerTaskByName(String taskName) {
-        Connection connection = MemoryShareDataRegion.connectionPool.getConnection();
+        Connection connection = getConnection();
+        Statement statement = null;
+        ResultSet resultSet = null;
         try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select * from tiger_task where task_name=" + taskName);
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("select * from tiger_task where task_name=" + taskName);
             List<TigerTask> tigerTaskList = new ArrayList<>();
             while (resultSet.next()) {
                 TigerTask tigerTask = new TigerTask();
@@ -30,7 +31,7 @@ public class TigerTaskDao {
         } catch (SQLException throwables) {
             throw new RuntimeException(throwables);
         } finally {
-            MemoryShareDataRegion.connectionPool.putBackConnection(connection);
+            closeAndPutBack(statement, resultSet, connection);
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.tigger.database.jdbc;
+package org.tigger.persistence.database.jdbc;
 
 
 import java.sql.Connection;

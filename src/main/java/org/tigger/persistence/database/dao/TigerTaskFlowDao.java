@@ -1,7 +1,6 @@
-package org.tigger.database.dao;
+package org.tigger.persistence.database.dao;
 
-import org.tigger.common.cache.MemoryShareDataRegion;
-import org.tigger.database.dao.entity.TigerTaskFlow;
+import org.tigger.persistence.database.dao.entity.TigerTaskFlow;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,13 +9,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TigerTaskFlowDao {
+public class TigerTaskFlowDao extends BaseDao {
 
     public static List<TigerTaskFlow> getTigerTaskFlowByPreviousId(String previousId) {
-        Connection connection = MemoryShareDataRegion.connectionPool.getConnection();
+        Connection connection = getConnection();
+        Statement statement = null;
+        ResultSet resultSet = null;
         try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select * from tiger_task_flow where previous_task_id='" + previousId + "'");
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("select * from tiger_task_flow where previous_task_id='" + previousId + "'");
             List<TigerTaskFlow> tigerTaskFlows = new ArrayList<>();
             while (resultSet.next()) {
                 TigerTaskFlow tigerTaskFlow = new TigerTaskFlow();
@@ -32,7 +33,7 @@ public class TigerTaskFlowDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            MemoryShareDataRegion.connectionPool.putBackConnection(connection);
+            closeAndPutBack(statement, resultSet, connection);
         }
     }
 

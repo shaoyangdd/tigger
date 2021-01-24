@@ -13,7 +13,7 @@ import org.tigger.common.util.TigerUtil;
 import org.tigger.communication.client.Client;
 import org.tigger.communication.client.Message;
 import org.tigger.communication.client.MessageProtobuf;
-import org.tigger.database.dao.entity.TigerTask;
+import org.tigger.persistence.database.dao.entity.TigerTask;
 
 import java.util.HashMap;
 import java.util.Map;

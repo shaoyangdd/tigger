@@ -2,9 +2,9 @@ package org.tigger.command;
 
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
-import org.tigger.database.dao.TigerTaskExecuteDao;
-import org.tigger.database.dao.entity.TigerTask;
-import org.tigger.database.dao.entity.TigerTaskExecute;
+import org.tigger.persistence.database.dao.TigerTaskExecuteDao;
+import org.tigger.persistence.database.dao.entity.TigerTask;
+import org.tigger.persistence.database.dao.entity.TigerTaskExecute;
 
 import java.sql.Timestamp;
 import java.util.logging.Logger;
