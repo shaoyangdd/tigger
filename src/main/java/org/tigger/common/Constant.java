@@ -9,6 +9,8 @@ public interface Constant {
 
     String EMPTY_STRING = "";
 
+    String SPACE = " ";
+
     String IP = "ipKey";
 
     /**

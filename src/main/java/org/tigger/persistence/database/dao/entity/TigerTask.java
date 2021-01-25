@@ -1,7 +1,10 @@
 package org.tigger.persistence.database.dao.entity;
 
+import org.tigger.persistence.file.Field;
+
 /**
  * tigger作业，对应作业表 tiger_task
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
@@ -9,6 +12,7 @@ public class TigerTask {
 
     private long id;
 
+    @Field(maxLength = 200)
     private String taskName;
 
     private String taskLayerId;

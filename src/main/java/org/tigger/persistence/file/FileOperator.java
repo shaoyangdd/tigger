@@ -10,5 +10,11 @@ import org.tigger.persistence.DataPersistence;
  */
 public class FileOperator implements DataPersistence {
 
+    private TigerFileWriter tigerFileWriter;
+
+    public int insert(Record record) {
+        tigerFileWriter.write(record);
+        return 1;
+    }
 
 }
