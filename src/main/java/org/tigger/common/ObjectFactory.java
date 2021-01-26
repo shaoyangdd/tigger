@@ -12,6 +12,7 @@ import org.tigger.command.receive_event_handler.TaskStartEventHandler;
 import org.tigger.command.send_event_handler.HeartbeatSendEventHandler;
 import org.tigger.common.config.TigerConfiguration;
 import org.tigger.communication.client.Client;
+import org.tigger.persistence.DataPersistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ public class ObjectFactory {
     private EventListener eventListener;
 
     private EventHandlerRegistry eventHandlerRegistry;
+
+    private DataPersistence dataPersistence;
 
     private final Object lock = new Object();
 

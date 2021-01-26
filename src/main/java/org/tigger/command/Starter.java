@@ -9,6 +9,7 @@ import org.tigger.common.threadpool.ThreadPool;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.message.encoder.TigerMessageEncoder;
 import org.tigger.communication.server.Server;
+import org.tigger.persistence.DataPersistence;
 import org.tigger.persistence.database.dao.TigerTaskDao;
 import org.tigger.persistence.database.dao.TigerTaskFlowDao;
 import org.tigger.persistence.database.dao.entity.TigerTaskFlow;
@@ -26,12 +27,15 @@ import static org.tigger.communication.server.MessageType.ONLINE_NOTICE;
 
 /**
  * tiger启动器  这里是入口
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
 public class Starter {
 
     private static Logger logger = Logger.getLogger(Starter.class.getSimpleName());
+
+    private DataPersistence<TigerTaskFlow> dataPersistence1;
 
     public static void run() {
         ThreadPool.getThreadPoolExecutor().execute(() -> {

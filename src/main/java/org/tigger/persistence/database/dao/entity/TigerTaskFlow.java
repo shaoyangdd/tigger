@@ -1,11 +1,14 @@
 package org.tigger.persistence.database.dao.entity;
 
+import org.tigger.persistence.file.Record;
+
 /**
  * tiger作业流，对应作业表 tiger_task_flow
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
-public class TigerTaskFlow {
+public class TigerTaskFlow implements Record {
 
     private long id;
 

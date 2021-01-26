@@ -11,13 +11,19 @@ public class TigerFileWriter {
 
     private RecordOperator recordOperator;
 
-    public void write(Record record) {
+    public void writeOneLine(File file, String record) {
+        writeLine(file, record);
+    }
 
-        File file = filePathResolver.getFile(record);
+    public void write(Record record) {
+        writeLine(filePathResolver.getFile(record), recordOperator.toString(record));
+    }
+
+    private void writeLine(File file, String string) {
         BufferedWriter bufferedWriter = null;
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write(recordOperator.toString(record));
+            bufferedWriter.write(string);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -30,5 +36,4 @@ public class TigerFileWriter {
             }
         }
     }
-
 }
