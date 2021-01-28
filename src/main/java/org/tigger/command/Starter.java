@@ -5,6 +5,9 @@ import io.netty.channel.Channel;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
+import org.tigger.common.datastruct.TigerTaskFlow;
+import org.tigger.common.ioc.BeanFactory;
+import org.tigger.common.parameter.Parameters;
 import org.tigger.common.threadpool.ThreadPool;
 import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.message.encoder.TigerMessageEncoder;
@@ -12,7 +15,6 @@ import org.tigger.communication.server.Server;
 import org.tigger.persistence.DataPersistence;
 import org.tigger.persistence.database.dao.TigerTaskDao;
 import org.tigger.persistence.database.dao.TigerTaskFlowDao;
-import org.tigger.persistence.database.dao.entity.TigerTaskFlow;
 import org.tigger.persistence.database.jdbc.ConnectionPool;
 
 import java.util.ArrayList;
@@ -40,6 +42,9 @@ public class Starter {
     public static void run() {
         ThreadPool.getThreadPoolExecutor().execute(() -> {
             logger.info("tiger 启动开始...");
+
+            // 初始化所有的Bean
+            BeanFactory.autowireBean(Parameters.getAutowireBeanParameter());
 
             //1. 启动Server
             logger.info("启动Server开始...");

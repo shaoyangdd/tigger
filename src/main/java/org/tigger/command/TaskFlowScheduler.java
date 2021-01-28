@@ -5,9 +5,9 @@ import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
 import org.tigger.common.datastruct.TaskExecuteStatus;
 import org.tigger.common.datastruct.TaskStatus;
+import org.tigger.common.datastruct.TigerTask;
 import org.tigger.common.threadpool.ThreadPool;
 import org.tigger.common.util.TigerUtil;
-import org.tigger.persistence.database.dao.entity.TigerTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,8 @@ public class TaskFlowScheduler {
         for (TigerTask tigerTask : myTaskList) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
                 //通知其它IP上本任务开始运行
-                Map<String, TigerTask> param = TigerUtil.buildTigerTaskParamMap(tigerTask);
+                //TODO 创建 TigerTaskExecute实例入库
+                Map<String, Object> param = TigerUtil.buildTigerTaskExecutionParamMap(null, tigerTask);
                 ObjectFactory.instance().getEventListener().listen(Event.TASK_START, param);
                 execute(tigerTask);
                 //通知其它IP本任务运行结束

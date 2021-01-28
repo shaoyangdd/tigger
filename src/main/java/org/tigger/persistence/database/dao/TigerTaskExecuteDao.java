@@ -1,7 +1,7 @@
 package org.tigger.persistence.database.dao;
 
 import org.tigger.common.cache.MemoryShareDataRegion;
-import org.tigger.persistence.database.dao.entity.TigerTaskExecute;
+import org.tigger.common.datastruct.TigerTaskExecute;
 
 import java.sql.*;
 

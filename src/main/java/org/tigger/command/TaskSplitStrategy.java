@@ -1,7 +1,7 @@
 package org.tigger.command;
 
 
-import org.tigger.persistence.database.dao.entity.TigerTask;
+import org.tigger.common.datastruct.TigerTask;
 
 import java.util.List;
 import java.util.Map;

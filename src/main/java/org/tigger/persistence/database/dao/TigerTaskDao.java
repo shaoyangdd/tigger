@@ -1,6 +1,6 @@
 package org.tigger.persistence.database.dao;
 
-import org.tigger.persistence.database.dao.entity.TigerTask;
+import org.tigger.common.datastruct.TigerTask;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

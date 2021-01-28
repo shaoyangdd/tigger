@@ -1,4 +1,4 @@
-package org.tigger.persistence.database.dao.entity;
+package org.tigger.common.datastruct;
 
 import java.sql.Timestamp;
 

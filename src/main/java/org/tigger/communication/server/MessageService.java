@@ -9,11 +9,11 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.tigger.command.Event;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
+import org.tigger.common.datastruct.TigerTask;
 import org.tigger.common.util.TigerUtil;
 import org.tigger.communication.client.Client;
 import org.tigger.communication.client.Message;
 import org.tigger.communication.client.MessageProtobuf;
-import org.tigger.persistence.database.dao.entity.TigerTask;
 
 import java.util.HashMap;
 import java.util.Map;

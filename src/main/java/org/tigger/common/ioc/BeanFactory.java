@@ -1,5 +1,6 @@
 package org.tigger.common.ioc;
 
+import org.tigger.common.datastruct.AutowireBeanParameter;
 import org.tigger.common.util.PackageUtil;
 
 import java.lang.reflect.Field;
@@ -24,9 +25,9 @@ public class BeanFactory {
     /**
      * 自动实例化所有的本包下的bean
      */
-    public void autowireBean() {
+    public static void autowireBean(AutowireBeanParameter autowireBeanParameter) {
         //1. 扫描包下所有的bean List<Class> 不包含接口，枚举
-        List<String> className = PackageUtil.getClassName("org.tigger");
+        List<String> className = PackageUtil.getClassName(autowireBeanParameter.getPackageName());
         //2. 实例化所有bean
         for (String s : className) {
             Class<?> clazz = loadClass(s);
@@ -44,7 +45,7 @@ public class BeanFactory {
      * @param className 类名 xx.xx.Abc
      * @return class
      */
-    private Class<?> loadClass(String className) {
+    private static Class<?> loadClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -59,7 +60,7 @@ public class BeanFactory {
      * @param clazz   类对象
      * @param count   递归次数，超过N就是循环依赖，做中断处理
      */
-    private void inject(Map<Class<?>, Object> beanMap, Class<?> clazz, Object obj, int count) {
+    private static void inject(Map<Class<?>, Object> beanMap, Class<?> clazz, Object obj, int count) {
         //简单粗暴的判断循环依赖
         if (count > 100) {
             throw new RuntimeException("出现了循环依赖，请检查!");
@@ -86,7 +87,7 @@ public class BeanFactory {
      * @param clazz 类对象
      * @return 实例对象
      */
-    private Object getInstanceByClass(Class<?> clazz) {
+    private static Object getInstanceByClass(Class<?> clazz) {
         try {
             return clazz.newInstance();
         } catch (Exception e) {
