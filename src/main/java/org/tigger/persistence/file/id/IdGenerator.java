@@ -25,7 +25,7 @@ public class IdGenerator {
 
     private File file;
 
-    public void init() {
+    public IdGenerator() {
         String seq = tigerFileReader.readOneLine(new File(idPath));
         atomicInteger = new AtomicInteger(Integer.parseInt(seq));
         file = new File(idPath);

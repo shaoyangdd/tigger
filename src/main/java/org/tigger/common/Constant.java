@@ -22,4 +22,6 @@ public interface Constant {
      * 心跳间隔时间 TODO 先写死，后面看看怎么做到可配置化
      */
     long HEART_BEAT_CHECK_SLEEP_TIME = 30000L;
+
+    int MB = 1024 * 1024;
 }
