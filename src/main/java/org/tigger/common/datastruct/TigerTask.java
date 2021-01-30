@@ -8,9 +8,7 @@ import org.tigger.persistence.file.Field;
  * @author kangshaofei
  * @date 2020-01-16
  */
-public class TigerTask {
-
-    private long id;
+public class TigerTask extends AbstractRecord {
 
     @Field(maxLength = 200)
     private String taskName;
@@ -18,15 +16,6 @@ public class TigerTask {
     private String taskLayerId;
 
     private String taskParameter;
-
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getTaskName() {
         return taskName;
@@ -55,10 +44,15 @@ public class TigerTask {
     @Override
     public String toString() {
         return "TigerTask{" +
-                "id=" + id +
+                "id=" + this.getId() +
                 ", taskName='" + taskName + '\'' +
                 ", taskLayerId='" + taskLayerId + '\'' +
                 ", taskParameter='" + taskParameter + '\'' +
                 '}';
+    }
+
+    @Override
+    public String getUnionKey() {
+        return taskName;
     }
 }

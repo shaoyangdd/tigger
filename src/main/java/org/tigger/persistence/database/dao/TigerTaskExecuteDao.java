@@ -4,10 +4,11 @@ import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.TigerTaskExecute;
 
 import java.sql.*;
+import java.util.List;
 
-public class TigerTaskExecuteDao extends BaseDao {
+public class TigerTaskExecuteDao implements BaseDao<TigerTaskExecute> {
 
-    public static long insert(TigerTaskExecute tigerTaskExecute) {
+    public long insertOne(TigerTaskExecute tigerTaskExecute) {
         Connection connection = MemoryShareDataRegion.connectionPool.getConnection();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -33,7 +34,33 @@ public class TigerTaskExecuteDao extends BaseDao {
         }
     }
 
-    public static void updateAfterComplete(long id,boolean result) {
+    @Override
+    public int insert(TigerTaskExecute record) {
+        return (int) insertOne(record);
+    }
+
+    @Override
+    public TigerTaskExecute findOne(TigerTaskExecute record) {
+        return null;
+    }
+
+    @Override
+    public List<TigerTaskExecute> findList(TigerTaskExecute record) {
+        return null;
+    }
+
+    @Override
+    public int update(TigerTaskExecute record) {
+        updateAfterComplete(record.getId(), "S".equals(record.getTaskStatus()) ? true : false);
+        return 0;
+    }
+
+    @Override
+    public int delete(TigerTaskExecute record) {
+        return 0;
+    }
+
+    public void updateAfterComplete(long id, boolean result) {
         Connection connection = getConnection();
         PreparedStatement statement = null;
         try {

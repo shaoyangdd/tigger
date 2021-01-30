@@ -15,7 +15,8 @@ public class TigerConfiguration {
     private DBMode dbMode = DBMode.DB;
 
     /**
-     * 配置任务执行器，使用用户自定义的
+     * 配置任务执行器，使用用户自定义的，根据任务名，任务参数分发到自己的任务
+     *
      * @param taskExecutor 任务执行器
      */
     public void configTaskExecutor(TaskExecutor taskExecutor) {
@@ -24,5 +25,9 @@ public class TigerConfiguration {
 
     /**
      * 配置数据库
+     */
+
+    /**
+     * 配置 AutowireBeanParameter
      */
 }

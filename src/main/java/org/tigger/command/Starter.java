@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.LogicTaskNode;
+import org.tigger.common.datastruct.TigerTask;
 import org.tigger.common.datastruct.TigerTaskFlow;
 import org.tigger.common.ioc.BeanFactory;
 import org.tigger.common.parameter.Parameters;
@@ -13,8 +14,6 @@ import org.tigger.communication.client.util.NetUtil;
 import org.tigger.communication.message.encoder.TigerMessageEncoder;
 import org.tigger.communication.server.Server;
 import org.tigger.persistence.DataPersistence;
-import org.tigger.persistence.database.dao.TigerTaskDao;
-import org.tigger.persistence.database.dao.TigerTaskFlowDao;
 import org.tigger.persistence.database.jdbc.ConnectionPool;
 
 import java.util.ArrayList;
@@ -37,9 +36,11 @@ public class Starter {
 
     private static Logger logger = Logger.getLogger(Starter.class.getSimpleName());
 
-    private DataPersistence<TigerTaskFlow> dataPersistence1;
+    private DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence;
 
-    public static void run() {
+    private DataPersistence<TigerTask> tigerTaskDataPersistence;
+
+    public void run() {
         ThreadPool.getThreadPoolExecutor().execute(() -> {
             logger.info("tiger 启动开始...");
 
@@ -74,7 +75,7 @@ public class Starter {
             MemoryShareDataRegion.connectionPool = new ConnectionPool();
 
             //7. 初始化任务流图
-            MemoryShareDataRegion.taskNode = buildLogicTaskNode();
+            MemoryShareDataRegion.taskNode = this.buildLogicTaskNode();
 
             //8. 启动定时任务
             AutoTrigger.run();
@@ -148,8 +149,7 @@ public class Starter {
     }
 
 
-
-    private static LogicTaskNode buildLogicTaskNode() {
+    private LogicTaskNode buildLogicTaskNode() {
         // 伪头节点 创建伪头节点是为了保证头只有一个节点，好遍历及其它操作
         LogicTaskNode fakeHead = new LogicTaskNode();
         List<LogicTaskNode> realHeadNode = getNextTigerTaskList(EMPTY_STRING, true);
@@ -163,8 +163,10 @@ public class Starter {
     }
 
 
-    private static List<LogicTaskNode> getNextTigerTaskList(String previousId, boolean isHead) {
-        List<TigerTaskFlow> tigerTaskFlowList = TigerTaskFlowDao.getTigerTaskFlowByPreviousId(previousId);
+    private List<LogicTaskNode> getNextTigerTaskList(String previousId, boolean isHead) {
+        TigerTaskFlow tigerTaskFlowSearch = new TigerTaskFlow();
+        tigerTaskFlowSearch.searchParam().put("previousTaskId", previousId);
+        List<TigerTaskFlow> tigerTaskFlowList = tigerTaskFlowDataPersistence.findList(tigerTaskFlowSearch);
         if (tigerTaskFlowList.size() == 0 && isHead) {
             throw new RuntimeException("没有定义任务流");
         }
@@ -172,13 +174,15 @@ public class Starter {
         for (TigerTaskFlow tigerTaskFlow : tigerTaskFlowList) {
             LogicTaskNode logicTaskNode = new LogicTaskNode();
             //先填上task
-            logicTaskNode.setCurrentTigerTask(TigerTaskDao.getTigerTaskByName(tigerTaskFlow.getTaskName()));
+            TigerTask search = new TigerTask();
+            search.setTaskName(tigerTaskFlow.getTaskName());
+            logicTaskNode.setCurrentTigerTask(tigerTaskDataPersistence.findOne(search));
             nodeList.add(logicTaskNode);
         }
         return nodeList;
     }
 
-    private static void buildNextNode(LogicTaskNode previousNode, List<LogicTaskNode> nextNodeList) {
+    private void buildNextNode(LogicTaskNode previousNode, List<LogicTaskNode> nextNodeList) {
 
         List<LogicTaskNode> previousNodeList = new ArrayList<>(1);
         previousNodeList.add(previousNode);

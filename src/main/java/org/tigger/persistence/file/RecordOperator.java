@@ -1,12 +1,6 @@
 package org.tigger.persistence.file;
 
 import com.alibaba.fastjson.JSON;
-import org.tigger.common.util.StringUtil;
-
-import java.lang.reflect.Field;
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 记录操作器
@@ -23,32 +17,45 @@ public class RecordOperator {
      * @return 字符串
      */
     public String toString(Record record) {
-        Map<String, String> recordMap = new HashMap<>();
-        try {
-            Field[] fields = record.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                String fileValue;
-                String padValue;
-                if (field.getType() == String.class) {
-                    fileValue = String.valueOf(field.get(record));
-                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
-                } else if (field.getType() == Long.class) {
-                    fileValue = String.valueOf(field.getLong(record));
-                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
-                } else if (field.getType() == Integer.class) {
-                    fileValue = String.valueOf(field.getInt(record));
-                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
-                } else if (field.getType() == Timestamp.class) {
-                    fileValue = String.valueOf(field.getLong(record));
-                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
-                } else {
-                    throw new RuntimeException("不支持的类型:" + record.getClass().getSimpleName() + " ,filed:" + field.getName());
-                }
-                recordMap.put(field.getName(), padValue);
-            }
-            return JSON.toJSONString(recordMap);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        Map<String, String> recordMap = new HashMap<>();
+//        try {
+//            Field[] fields = record.getClass().getDeclaredFields();
+//            for (Field field : fields) {
+//                String fileValue;
+//                String padValue;
+//                if (field.getType() == String.class) {
+//                    fileValue = String.valueOf(field.get(record));
+//                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
+//                } else if (field.getType() == Long.class) {
+//                    fileValue = String.valueOf(field.getLong(record));
+//                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
+//                } else if (field.getType() == Integer.class) {
+//                    fileValue = String.valueOf(field.getInt(record));
+//                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
+//                } else if (field.getType() == Timestamp.class) {
+//                    fileValue = String.valueOf(field.getLong(record));
+//                    padValue = StringUtil.leftPadSpace(fileValue, FieldMapping.getLengthByClass(field.getClass()));
+//                } else {
+//                    throw new RuntimeException("不支持的类型:" + record.getClass().getSimpleName() + " ,filed:" + field.getName());
+//                }
+//                recordMap.put(field.getName(), padValue);
+//            }
+//            return JSON.toJSONString(recordMap);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+        //TODO 先不补齐长度了，后面再考虑更新时覆盖
+        return JSON.toJSONString(record);
     }
+
+    /**
+     * JSON字符串转Record对象
+     *
+     * @param string
+     * @return
+     */
+    public Record stringToRecord(String string, Class<? extends Record> clazz) {
+        return JSON.parseObject(string, clazz);
+    }
+
 }

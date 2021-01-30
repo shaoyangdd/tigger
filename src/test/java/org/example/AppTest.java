@@ -1,26 +1,26 @@
 package org.example;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.tigger.command.Starter;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.config.TigerConfiguration;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-{
+public class AppTest {
+    private Starter starter;
+
     /**
      * Rigorous Test :-)
      */
     @Test
-    public void execute()
-    {
+    public void execute() {
         TigerConfiguration tigerConfiguration = ObjectFactory.instance().getTigerConfiguration();
         tigerConfiguration.configTaskExecutor(new SpringBatchTaskExecutor());
-        Starter.run();
-        assertTrue( true );
+        starter.run();
+        assertTrue(true);
     }
 }

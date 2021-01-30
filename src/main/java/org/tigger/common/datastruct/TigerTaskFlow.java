@@ -1,16 +1,12 @@
 package org.tigger.common.datastruct;
 
-import org.tigger.persistence.file.Record;
-
 /**
  * tiger作业流，对应作业表 tiger_task_flow
  *
  * @author kangshaofei
  * @date 2020-01-16
  */
-public class TigerTaskFlow implements Record {
-
-    private long id;
+public class TigerTaskFlow extends AbstractRecord {
 
     private String taskName;
 
@@ -22,12 +18,9 @@ public class TigerTaskFlow implements Record {
 
     private String taskParameter;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+    @Override
+    public String getUnionKey() {
+        return null;
     }
 
     public String getTaskName() {

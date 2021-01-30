@@ -9,10 +9,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TigerTaskFlowDao extends BaseDao {
+public class TigerTaskFlowDao implements BaseDao<TigerTaskFlow> {
 
-    public static List<TigerTaskFlow> getTigerTaskFlowByPreviousId(String previousId) {
-        Connection connection = getConnection();
+    public List<TigerTaskFlow> getTigerTaskFlowByPreviousId(String previousId) {
+        Connection connection = this.getConnection();
         Statement statement = null;
         ResultSet resultSet = null;
         try {
@@ -37,4 +37,28 @@ public class TigerTaskFlowDao extends BaseDao {
         }
     }
 
+    @Override
+    public int insert(TigerTaskFlow record) {
+        return 0;
+    }
+
+    @Override
+    public TigerTaskFlow findOne(TigerTaskFlow record) {
+        return null;
+    }
+
+    @Override
+    public List<TigerTaskFlow> findList(TigerTaskFlow record) {
+        return getTigerTaskFlowByPreviousId(String.valueOf(record.getPreviousTaskId()));
+    }
+
+    @Override
+    public int update(TigerTaskFlow record) {
+        return 0;
+    }
+
+    @Override
+    public int delete(TigerTaskFlow record) {
+        return 0;
+    }
 }

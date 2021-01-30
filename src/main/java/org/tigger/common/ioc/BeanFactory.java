@@ -28,7 +28,7 @@ public class BeanFactory {
     public static void autowireBean(AutowireBeanParameter autowireBeanParameter) {
         //1. 扫描包下所有的bean List<Class> 不包含接口，枚举
         List<String> className = PackageUtil.getClassName(autowireBeanParameter.getPackageName());
-        //2. 实例化所有bean
+        //2. 实例化所有bean //TODO 处理接口、抽象类
         for (String s : className) {
             Class<?> clazz = loadClass(s);
             beanMap.put(clazz, getInstanceByClass(clazz));

@@ -2,7 +2,7 @@ package org.tigger.common.datastruct;
 
 import java.sql.Timestamp;
 
-public class TigerTaskExecute {
+public class TigerTaskExecute extends AbstractRecord {
 
     private long id;
 
@@ -85,5 +85,10 @@ public class TigerTaskExecute {
                 ", taskExecutorIp='" + taskExecutorIp + '\'' +
                 ", taskParameter='" + taskParameter + '\'' +
                 '}';
+    }
+
+    @Override
+    public String getUnionKey() {
+        return null;
     }
 }

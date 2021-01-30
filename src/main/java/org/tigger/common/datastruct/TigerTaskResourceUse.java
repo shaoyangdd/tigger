@@ -1,7 +1,5 @@
 package org.tigger.common.datastruct;
 
-import org.tigger.persistence.file.Record;
-
 import java.math.BigDecimal;
 
 /**
@@ -10,7 +8,7 @@ import java.math.BigDecimal;
  * @author 康绍飞
  * @date 2021-01-28
  */
-public class TigerTaskResourceUse implements Record {
+public class TigerTaskResourceUse extends AbstractRecord {
 
     private String taskExecuteId;
 
@@ -60,5 +58,10 @@ public class TigerTaskResourceUse implements Record {
 
     public void setNetUse(BigDecimal netUse) {
         this.netUse = netUse;
+    }
+
+    @Override
+    public String getUnionKey() {
+        return null;
     }
 }

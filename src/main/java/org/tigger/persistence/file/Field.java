@@ -10,7 +10,12 @@ public @interface Field {
     /**
      * 长度
      */
-    int maxLength();
+    int maxLength() default Integer.MAX_VALUE;
 
-
+    /**
+     * 是不是联合主键
+     *
+     * @return true 是联合主键,false 不是联合主键
+     */
+    boolean isUnionKey() default false;
 }

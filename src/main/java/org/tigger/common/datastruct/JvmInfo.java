@@ -1,14 +1,13 @@
 package org.tigger.common.datastruct;
 
-import org.tigger.persistence.file.Record;
-
 /**
  * JVM信息
  *
  * @author kangshaofei
  * @date 2021-01-29
  */
-public class JvmInfo implements Record {
+public class JvmInfo extends AbstractRecord {
+
 
     /**
      * 初始化堆大小 MB
@@ -190,5 +189,20 @@ public class JvmInfo implements Record {
 
     public void setJvmMaxSize(long jvmMaxSize) {
         this.jvmMaxSize = jvmMaxSize;
+    }
+
+    @Override
+    public void setId(long id) {
+
+    }
+
+    @Override
+    public long getId() {
+        return 0;
+    }
+
+    @Override
+    public String getUnionKey() {
+        return null;
     }
 }

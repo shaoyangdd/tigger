@@ -9,9 +9,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TigerTaskDao extends BaseDao {
+public class TigerTaskDao implements BaseDao<TigerTask> {
 
-    public static TigerTask getTigerTaskByName(String taskName) {
+    public TigerTask getTigerTaskByName(String taskName) {
         Connection connection = getConnection();
         Statement statement = null;
         ResultSet resultSet = null;
@@ -33,5 +33,30 @@ public class TigerTaskDao extends BaseDao {
         } finally {
             closeAndPutBack(statement, resultSet, connection);
         }
+    }
+
+    @Override
+    public int insert(TigerTask record) {
+        return 0;
+    }
+
+    @Override
+    public TigerTask findOne(TigerTask record) {
+        return getTigerTaskByName(record.getTaskName());
+    }
+
+    @Override
+    public List<TigerTask> findList(TigerTask record) {
+        return null;
+    }
+
+    @Override
+    public int update(TigerTask record) {
+        return 0;
+    }
+
+    @Override
+    public int delete(TigerTask record) {
+        return 0;
     }
 }
