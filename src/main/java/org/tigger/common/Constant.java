@@ -24,4 +24,6 @@ public interface Constant {
     long HEART_BEAT_CHECK_SLEEP_TIME = 30000L;
 
     int MB = 1024 * 1024;
+
+    String THREAD_COUNT = "THREAD_COUNT";
 }

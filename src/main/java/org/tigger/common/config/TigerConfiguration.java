@@ -30,4 +30,9 @@ public class TigerConfiguration {
     /**
      * 配置 AutowireBeanParameter
      */
+
+    /**
+     * 配置标准
+     * 如：任务执行时间，GC时间，CPU使用率，内存使用率，带宽使用率，磁盘IO，磁盘
+     */
 }

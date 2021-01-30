@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * @author 康绍飞
  * @date 2021-01-28
  */
-public class MemoryInfo {
+public class MemoryInfo extends AbstractRecord {
 
     /**
      * 内存使用率
@@ -21,5 +21,10 @@ public class MemoryInfo {
 
     public void setUsage(BigDecimal usage) {
         this.usage = usage;
+    }
+
+    @Override
+    public String getUnionKey() {
+        return null;
     }
 }

@@ -14,6 +14,15 @@ public class WarnMonitor implements Monitor {
 
     @Override
     public void monitor(Event event, Map<String, ?> parameter) {
+        //监控CPU
+
+        //监控内存
+
+        //监控磁盘使用率
+
+        //监控网络
+
+        //发邮件、短信、微信通知
 
     }
 }
