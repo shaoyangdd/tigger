@@ -2,6 +2,7 @@ package org.tigger.common.cache;
 
 import io.netty.channel.Channel;
 import org.tigger.common.datastruct.LogicTaskNode;
+import org.tigger.common.datastruct.Standard;
 import org.tigger.common.datastruct.TaskExecuteStatus;
 import org.tigger.persistence.database.jdbc.ConnectionPool;
 
@@ -69,4 +70,9 @@ public class MemoryShareDataRegion {
      * 运行状态
      */
     public static List<TaskExecuteStatus> taskExecuteStatus = new ArrayList<>();
+
+    /**
+     * 性能标准
+     */
+    public static Standard standard;
 }

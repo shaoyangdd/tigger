@@ -7,6 +7,7 @@ import org.tigger.common.datastruct.TaskExecuteStatus;
 import org.tigger.common.datastruct.TaskStatus;
 import org.tigger.common.datastruct.TigerTask;
 import org.tigger.common.threadpool.ThreadPool;
+import org.tigger.common.util.ThreadUtil;
 import org.tigger.common.util.TigerUtil;
 
 import java.util.ArrayList;
@@ -78,6 +79,7 @@ public class TaskFlowScheduler {
         //等上面的都执行完
         while (!(tigerTaskList.size() == 0 && waitingTaskList.size() == 0)) {
             //自旋等上面任务完成
+            ThreadUtil.sleep(1000);
         }
         //3. 递归并发遍历去执行下一批节点
         for (LogicTaskNode logicTaskNode : nodeListForExecute) {

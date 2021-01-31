@@ -1,20 +1,44 @@
 package org.tigger.command;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.tigger.command.machine_learning.Calculator;
+import org.tigger.command.machine_learning.ShardingParameter;
 import org.tigger.common.ObjectFactory;
 import org.tigger.common.cache.MemoryShareDataRegion;
 import org.tigger.common.datastruct.TigerTask;
 import org.tigger.common.datastruct.TigerTaskExecute;
+import org.tigger.common.ioc.InjectByType;
+import org.tigger.common.ioc.SingletonBean;
 import org.tigger.persistence.database.dao.TigerTaskExecuteDao;
 
 import java.sql.Timestamp;
 import java.util.logging.Logger;
 
+import static org.tigger.common.Constant.SHARDING_PARAMETER_KEY;
+
+/**
+ * 任务执行器
+ * 其实是一个模板，主要是调用用户的处理逻辑
+ *
+ * @author 康绍飞
+ * @date 2021-01-31
+ */
+@SingletonBean
 public class TigerTaskExecutor {
 
     private static Logger logger = Logger.getLogger(TaskFlowScheduler.class.getSimpleName());
 
     private TigerTaskExecuteDao tigerTaskExecuteDao;
 
+    @InjectByType
+    private Calculator calculator;
+
+    /**
+     * 执行任务
+     * @param tigerTask
+     * @return
+     */
     public boolean executeTask(TigerTask tigerTask) {
         //插入一条任务执行、
         long id = insertRunning(tigerTask);
@@ -22,8 +46,12 @@ public class TigerTaskExecutor {
         //ObjectFactory.instance().getEventListener().listen(Event.TASK_START, null);
         boolean result;
         try {
+            //计算分片参数
+            ShardingParameter shardingParameter = calculator.getShardingParameter(tigerTask, MemoryShareDataRegion.standard);
+            JSONObject jsonObject = JSON.parseObject(tigerTask.getTaskParameter());
+            jsonObject.put(SHARDING_PARAMETER_KEY, shardingParameter);
             //使用用户自定义的执行器执行任务(执行业务逻辑)
-            result = ObjectFactory.instance().getTaskExecutor().execute(tigerTask.getTaskName(), tigerTask.getTaskParameter());
+            result = ObjectFactory.instance().getTaskExecutor().execute(tigerTask.getTaskName(), jsonObject.toJSONString());
         } catch (Exception e) {
             logger.info(e.getMessage());
             result = false;
@@ -46,5 +74,4 @@ public class TigerTaskExecutor {
         tigerTaskExecute.setTaskParameter(tigerTask.getTaskParameter());
         return tigerTaskExecuteDao.insert(tigerTaskExecute);
     }
-
 }

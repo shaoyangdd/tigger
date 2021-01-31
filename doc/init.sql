@@ -2,15 +2,16 @@
 DROP TABLE IF EXISTS `tiger_task`;
 create table tiger_task
 (
-    id bigint auto_increment comment '主键ID（任务ID）' primary key,
-    task_name varchar (200) default '' not null comment '作业名',
-    task_layer_id bigint default 0 not null comment '作业层级ID',
-    task_parameter text default '' not null comment '作业参数，自定义',
-    status char default '1' not null comment '状态 1：有效 0：无效',
-    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP not null comment '更新时间',
-    last_update_user varchar(50) default 'SYSTEM' not null comment '最后更新用户',
-    version int default 0 comment '版本号'
+    id                bigint auto_increment comment '主键ID（任务ID）' primary key,
+    task_name         varchar(200) default ''                not null comment '作业名',
+    task_layer_id     bigint       default 0                 not null comment '作业层级ID',
+    task_parameter    text         default ''                not null comment '作业参数，自定义',
+    task_process_mode char(1)      default ''                not null comment '作业处理模式，参考ProcessMode中的枚举值',
+    status            char         default '1'               not null comment '状态 1：有效 0：无效',
+    create_time       timestamp    default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time       timestamp    default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP not null comment '更新时间',
+    last_update_user  varchar(50)  default 'SYSTEM'          not null comment '最后更新用户',
+    version           int          default 0 comment '版本号'
 ) comment '作业表';
 
 -- 作业展示节点 树型节点，方便作业多时归类，方便用页面查看

@@ -26,4 +26,9 @@ public interface Constant {
     int MB = 1024 * 1024;
 
     String THREAD_COUNT = "THREAD_COUNT";
+
+    String COUNT_SQL = "COUNT_SQL";
+
+    String SHARDING_PARAMETER_KEY = "shardingParameters";
+
 }

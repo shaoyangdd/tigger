@@ -15,6 +15,8 @@ public class TigerTask extends AbstractRecord {
 
     private String taskLayerId;
 
+    private String taskProcessMode;
+
     private String taskParameter;
 
     public String getTaskName() {
@@ -41,6 +43,14 @@ public class TigerTask extends AbstractRecord {
         this.taskParameter = taskParameter;
     }
 
+    public String getTaskProcessMode() {
+        return taskProcessMode;
+    }
+
+    public void setTaskProcessMode(String taskProcessMode) {
+        this.taskProcessMode = taskProcessMode;
+    }
+
     @Override
     public String toString() {
         return "TigerTask{" +
@@ -55,4 +65,6 @@ public class TigerTask extends AbstractRecord {
     public String getUnionKey() {
         return taskName;
     }
+
+
 }
