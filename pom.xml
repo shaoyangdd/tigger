@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>tigger</artifactId>
+    <artifactId>tiger</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <name>tigger</name>
@@ -48,7 +48,12 @@
             <artifactId>quartz</artifactId>
             <version>2.3.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <!--此处的版本为为兼容Mybatis代码生成插件以及服务器上的数据库-->
+            <version>5.1.30</version>
+        </dependency>
     </dependencies>
 
     <build>
