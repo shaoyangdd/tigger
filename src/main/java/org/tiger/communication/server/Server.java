@@ -20,8 +20,11 @@ import java.util.logging.Logger;
 public class Server {
 
     private Logger logger = Logger.getLogger(Client.class.getName());
-    
+
     private int port;
+
+    public Server() {
+    }
 
     public Server(int port) {
         this.port = port;

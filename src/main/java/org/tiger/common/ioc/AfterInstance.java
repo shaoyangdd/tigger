@@ -3,15 +3,13 @@ package org.tiger.common.ioc;
 import java.lang.annotation.*;
 
 /**
- * IOC窗口注解，代表单例BEAN
+ * bean实例化、注入依赖之后需要调用的方法
  *
  * @author 康绍飞
  * @date 2021-02-02
  */
 @Documented
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SingletonBean {
-
-
+public @interface AfterInstance {
 }

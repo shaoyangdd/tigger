@@ -2,6 +2,7 @@ package org.tiger.persistence.database.jdbc;
 
 
 import org.tiger.common.ioc.SingletonBean;
+import org.tiger.common.parameter.Parameters;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -47,10 +48,10 @@ public class ConnectionPool {
      * @param totalSize 总连接数
      */
     public void init(int size, int totalSize) {
-        String user = PropertiesContainer.getProperty(PropertiesContainer.PropertyKey.DATABASE_USER_NAME);
-        String password = PropertiesContainer.getProperty(PropertiesContainer.PropertyKey.DATABASE_PASSWORD);
-        String url = PropertiesContainer.getProperty(PropertiesContainer.PropertyKey.DATABASE_URL);
-        logger.info("初始化连接池:userName:"+user + ",password:"+ password +",url:" + url);
+        String user = Parameters.get("database.username");
+        String password = Parameters.get("database.password");
+        String url = Parameters.get("database.url");
+        logger.info("初始化连接池:userName:" + user + ",password:" + password + ",url:" + url);
         connectionQueue = new ArrayBlockingQueue<>(totalSize);
         for (int i = 0; i < size; i++) {
             Connection conn;

@@ -1,6 +1,8 @@
 package org.tiger.persistence.file.id;
 
+import org.tiger.common.ioc.AfterInstance;
 import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.file.TigerFileReader;
 import org.tiger.persistence.file.TigerFileWriter;
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @SingletonBean
 public class IdGenerator {
 
+    @InjectParameter
     private String idPath;
 
     private AtomicLong atomicLong;
@@ -31,17 +34,21 @@ public class IdGenerator {
     private File file;
 
     public IdGenerator() {
-        String seq = tigerFileReader.readOneLine(new File(idPath));
-        atomicLong = new AtomicLong(Integer.parseInt(seq));
-        file = new File(idPath);
-        if (!file.exists()) {
-            throw new RuntimeException("序号文件不存在:" + idPath);
-        }
     }
 
     synchronized public long getNextSeq() {
         long seq = atomicLong.getAndDecrement();
         tigerFileWriter.writeOneLine(file, String.valueOf(seq));
         return seq;
+    }
+
+    @AfterInstance
+    public void init() {
+        String seq = tigerFileReader.readOneLine(new File(idPath));
+        atomicLong = new AtomicLong(Integer.parseInt(seq));
+        file = new File(idPath);
+        if (!file.exists()) {
+            throw new RuntimeException("序号文件不存在:" + idPath);
+        }
     }
 }

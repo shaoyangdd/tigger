@@ -2,10 +2,14 @@ package org.tiger.common.ioc;
 
 import org.tiger.common.datastruct.AutowireBeanParameter;
 import org.tiger.common.log.TigerLogger;
+import org.tiger.common.parameter.FileConfigParameterReader;
+import org.tiger.common.parameter.ParameterReader;
+import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.PackageUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,10 +30,15 @@ public class BeanFactory {
      */
     private static final Map<Class<?>, Object> beanMap = new ConcurrentHashMap<>();
 
+    private static ParameterReader parameterReader = new FileConfigParameterReader();
+
     /**
      * 自动实例化所有的本包下的bean
      */
     public static void autowireBean(AutowireBeanParameter autowireBeanParameter) {
+        //加载参数
+        parameterReader.read();
+
         //1. 扫描包下所有的bean List<Class> 不包含接口，枚举
         logger.info("开始扫描包下的类...");
         List<String> className = PackageUtil.getClassName(autowireBeanParameter.getPackageName());
@@ -53,6 +62,20 @@ public class BeanFactory {
         beanMap.forEach((k, v) -> {
             inject(beanMap, k, v, 0);
         });
+        //4. 实例化之后操作,调用@AfterInstance注解的方法
+        logger.info("调用@AfterInstance注解的方法...");
+        beanMap.forEach((k, v) -> {
+            Method[] methods = k.getMethods();
+            if (methods.length > 0) {
+                for (Method method : methods) {
+                    Annotation[] annotations = method.getAnnotations();
+                    if (hasAnnotation(annotations, AfterInstance.class)) {
+                        logger.info("@AfterInstance 调用:" + k.getSimpleName() + "的:" + method.getName() + "方法!");
+                        executeMethod(method, v);
+                    }
+                }
+            }
+        });
         logger.info("Ioc容器初始化bean完成。");
     }
 
@@ -75,6 +98,20 @@ public class BeanFactory {
     }
 
     /**
+     * 执行方法
+     *
+     * @param method 方法
+     * @param object 对象
+     */
+    private static void executeMethod(Method method, Object object) {
+        try {
+            method.invoke(object);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 依赖注入
      *
      * @param beanMap bean容器
@@ -88,17 +125,36 @@ public class BeanFactory {
         }
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            Object fieldValue = beanMap.get(field.getType());
-            if (fieldValue != null) {//是包下的类
-                field.setAccessible(true);
-                try {
-                    field.set(obj, fieldValue);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+            Annotation[] annotations = field.getAnnotations();
+            if (annotations.length != 0) {
+                if (hasAnnotation(annotations, InjectByType.class)) {
+                    Object fieldValue = beanMap.get(field.getType());
+                    if (fieldValue != null) {//是包下的类
+                        setValue(field, obj, fieldValue);
+                        //递归注入
+                        inject(beanMap, field.getType(), fieldValue, ++count);
+                    }
+                } else if (hasAnnotation(annotations, InjectParameter.class)) {
+                    //注入参数
+                    setValue(field, obj, Parameters.get(field.getName()));
                 }
-                //递归注入
-                inject(beanMap, field.getType(), fieldValue, ++count);
             }
+        }
+    }
+
+    /**
+     * 属性设置值
+     *
+     * @param field      属性
+     * @param obj        对象
+     * @param fieldValue 值
+     */
+    private static void setValue(Field field, Object obj, Object fieldValue) {
+        field.setAccessible(true);
+        try {
+            field.set(obj, fieldValue);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -113,6 +169,10 @@ public class BeanFactory {
             logger.info("实例化：" + clazz.getName());
             return clazz.newInstance();
         } catch (Exception e) {
+            //InstantiationException
+            if (e.getCause() instanceof NoSuchMethodException) {
+                logger.info("请确保:" + clazz.getName() + "有默认的空构造方法!");
+            }
             throw new RuntimeException("实例化：" + clazz.getName() + "失败！", e);
         }
     }

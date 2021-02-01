@@ -3,15 +3,13 @@ package org.tiger.common.ioc;
 import java.lang.annotation.*;
 
 /**
- * IOC窗口注解，代表单例BEAN
+ * 注入参数
  *
  * @author 康绍飞
  * @date 2021-02-02
  */
 @Documented
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SingletonBean {
-
-
+public @interface InjectParameter {
 }
