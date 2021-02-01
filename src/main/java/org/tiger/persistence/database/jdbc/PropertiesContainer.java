@@ -1,5 +1,7 @@
 package org.tiger.persistence.database.jdbc;
 
+import org.tiger.common.ioc.SingletonBean;
+
 import java.io.*;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -11,6 +13,7 @@ import java.util.logging.Logger;
  * @author kangshaofei
  * @date
  */
+@SingletonBean
 public class PropertiesContainer {
 
     private static Logger logger = Logger.getLogger(PropertiesContainer.class.getSimpleName());

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.tiger.command.Event;
 import org.tiger.common.datastruct.JvmInfo;
 import org.tiger.common.datastruct.TigerTaskExecute;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.common.util.TigerUtil;
 import org.tiger.persistence.DataPersistence;
@@ -21,6 +22,7 @@ import static org.tiger.common.Constant.MB;
  * @author kangshaofei
  * @date 2020-01-16
  */
+@SingletonBean
 public class JvmMonitor implements Monitor {
 
     private static Logger logger = Logger.getLogger(JvmMonitor.class.getSimpleName());

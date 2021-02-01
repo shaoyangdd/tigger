@@ -1,6 +1,7 @@
 package org.tiger.command.receive_event_handler;
 
 import org.tiger.common.cache.MemoryShareDataRegion;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import static org.tiger.common.Constant.IP;
  * @author kangshaofei
  * @date 2020-01-23
  */
+@SingletonBean
 public class HeartbeatEventHandler implements EventHandler {
 
     @Override

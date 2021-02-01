@@ -1,6 +1,7 @@
 package org.tiger.persistence.database.dao;
 
 import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@SingletonBean
 public class TigerTaskDao implements BaseDao<TigerTask> {
 
     public TigerTask getTigerTaskByName(String taskName) {

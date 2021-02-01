@@ -1,6 +1,7 @@
 package org.tiger.command.monitor;
 
 import org.tiger.command.Event;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import java.util.Map;
  * @author kangshaofei
  * @date 2020-01-16
  */
+@SingletonBean
 public class WarnMonitor implements Monitor {
 
     @Override

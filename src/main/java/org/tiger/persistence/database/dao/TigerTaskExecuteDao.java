@@ -2,10 +2,12 @@ package org.tiger.persistence.database.dao;
 
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.TigerTaskExecute;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.sql.*;
 import java.util.List;
 
+@SingletonBean
 public class TigerTaskExecuteDao implements BaseDao<TigerTaskExecute> {
 
     public long insertOne(TigerTaskExecute tigerTaskExecute) {

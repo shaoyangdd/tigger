@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 /**
  * bean工厂，简单轻量的IOC容器
- * 不需要像Spring一样加Autowire注解即可实现注入
  *
  * @author 康绍飞
  * @date 2021-01-27

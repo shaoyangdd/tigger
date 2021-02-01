@@ -1,6 +1,7 @@
 package org.tiger.persistence.database.dao;
 
 import org.tiger.common.datastruct.TigerTaskFlow;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@SingletonBean
 public class TigerTaskFlowDao implements BaseDao<TigerTaskFlow> {
 
     public List<TigerTaskFlow> getTigerTaskFlowByPreviousId(String previousId) {

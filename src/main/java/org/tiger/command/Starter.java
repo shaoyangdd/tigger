@@ -8,6 +8,7 @@ import org.tiger.common.datastruct.LogicTaskNode;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.ioc.BeanFactory;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.threadpool.ThreadPool;
 import org.tiger.communication.client.util.NetUtil;
@@ -32,6 +33,7 @@ import static org.tiger.communication.server.MessageType.ONLINE_NOTICE;
  * @author kangshaofei
  * @date 2020-01-16
  */
+@SingletonBean
 public class Starter {
 
     private static Logger logger = Logger.getLogger(Starter.class.getSimpleName());

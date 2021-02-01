@@ -1,5 +1,8 @@
 package org.tiger.persistence.file;
 
+import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.SingletonBean;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -13,8 +16,10 @@ import java.util.List;
  * @author 康绍飞
  * @date 2021-01-30
  */
+@SingletonBean
 public class TigerFileReader {
 
+    @InjectByType
     private FilePathResolver filePathResolver;
 
     /**

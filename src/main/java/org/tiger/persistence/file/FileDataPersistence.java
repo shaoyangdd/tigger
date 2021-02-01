@@ -1,6 +1,8 @@
 package org.tiger.persistence.file;
 
 import com.alibaba.fastjson.JSON;
+import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.file.id.IdGenerator;
 
@@ -15,14 +17,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author kangshaofei
  * @date 2020-01-25
  */
+@SingletonBean
 public class FileDataPersistence<T extends Record> implements DataPersistence<T> {
 
+    @InjectByType
     private IdGenerator idGenerator;
-
+    @InjectByType
     private TigerFileWriter tigerFileWriter;
-
+    @InjectByType
     private TigerFileReader tigerFileReader;
-
+    @InjectByType
     private RecordOperator recordOperator;
 
     public int insert(T record) {

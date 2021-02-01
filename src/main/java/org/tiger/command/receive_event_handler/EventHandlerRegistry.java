@@ -2,6 +2,7 @@ package org.tiger.command.receive_event_handler;
 
 import org.tiger.command.Event;
 import org.tiger.command.send_event_handler.SendEventHandler;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Map;
  * @author kangshaofei
  * @date 2020-01-23
  */
+@SingletonBean
 public class EventHandlerRegistry {
 
     private Map<Event, EventHandler> eventEventHandlerMap = new HashMap<>();

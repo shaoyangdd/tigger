@@ -1,6 +1,7 @@
 package org.tiger.command.send_event_handler;
 
 import org.tiger.common.cache.MemoryShareDataRegion;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import static org.tiger.communication.server.MessageType.HEARTBEAT;
  * @author kangshaofei
  * @date 2020-01-23
  */
+@SingletonBean
 public class HeartbeatSendEventHandler implements SendEventHandler {
 
     /**

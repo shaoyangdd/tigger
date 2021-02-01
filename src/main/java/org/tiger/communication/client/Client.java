@@ -5,10 +5,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.tiger.common.ioc.SingletonBean;
 
 import java.util.logging.Logger;
 
-
+@SingletonBean
 public class Client {
 
     private Logger logger = Logger.getLogger(Client.class.getName());

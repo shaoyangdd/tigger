@@ -1,6 +1,8 @@
 package org.tiger.persistence.database.jdbc;
 
 
+import org.tiger.common.ioc.SingletonBean;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -13,6 +15,7 @@ import java.util.logging.Logger;
  * @author kangshaofei
  * @date 20200412
  */
+@SingletonBean
 public class ConnectionPool {
 
     private static Logger logger = Logger.getLogger(ConnectionPool.class.getSimpleName());

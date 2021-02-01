@@ -6,6 +6,7 @@ import org.tiger.common.datastruct.LogicTaskNode;
 import org.tiger.common.datastruct.TaskExecuteStatus;
 import org.tiger.common.datastruct.TaskStatus;
 import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.threadpool.ThreadPool;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.common.util.TigerUtil;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * @author kangshaofei
  * @date 2020-01-19
  */
+@SingletonBean
 public class TaskFlowScheduler {
 
     private Logger logger = Logger.getLogger(TaskFlowScheduler.class.getSimpleName());

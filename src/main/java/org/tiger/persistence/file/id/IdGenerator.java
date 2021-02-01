@@ -1,5 +1,7 @@
 package org.tiger.persistence.file.id;
 
+import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.file.TigerFileReader;
 import org.tiger.persistence.file.TigerFileWriter;
 
@@ -13,14 +15,17 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author 康绍飞
  * @date 2020-01-26
  */
+@SingletonBean
 public class IdGenerator {
 
     private String idPath;
 
     private AtomicLong atomicLong;
 
+    @InjectByType
     private TigerFileReader tigerFileReader;
 
+    @InjectByType
     private TigerFileWriter tigerFileWriter;
 
     private File file;

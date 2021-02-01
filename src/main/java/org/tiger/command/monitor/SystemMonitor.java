@@ -7,6 +7,7 @@ import org.tiger.command.monitor.system.IoUsage;
 import org.tiger.command.monitor.system.MemUsage;
 import org.tiger.command.monitor.system.NetUsage;
 import org.tiger.common.datastruct.*;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.common.util.TigerUtil;
 import org.tiger.persistence.DataPersistence;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author kangshaofei
  * @date 2020-01-16
  */
+@SingletonBean
 public class SystemMonitor implements Monitor {
 
     private DataPersistence<TigerTaskResourceUse> dataPersistence;

@@ -1,14 +1,20 @@
 package org.tiger.persistence.file;
 
+import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.SingletonBean;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+@SingletonBean
 public class TigerFileWriter {
 
+    @InjectByType
     private FilePathResolver filePathResolver;
 
+    @InjectByType
     private RecordOperator recordOperator;
 
     public void writeOneLine(File file, String record) {

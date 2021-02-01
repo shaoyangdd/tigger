@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.command.Event;
 import org.tiger.common.cache.MemoryShareDataRegion;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.util.TigerUtil;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
 
@@ -18,6 +19,7 @@ import static org.tiger.communication.server.MessageType.TASK_START;
  * @author kangshaofei
  * @date 2020-01-16
  */
+@SingletonBean
 public class AppMonitor implements Monitor {
 
     private final Logger logger = LoggerFactory.getLogger(AppMonitor.class.getSimpleName());

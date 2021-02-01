@@ -4,6 +4,7 @@ import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.TaskExecuteStatus;
 import org.tiger.common.datastruct.TaskStatus;
 import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.util.TigerUtil;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import static org.tiger.common.Constant.IP;
  * @author kangshaofei
  * @date 2020-01-23
  */
+@SingletonBean
 public class TaskStartEventHandler implements EventHandler {
 
     @Override
