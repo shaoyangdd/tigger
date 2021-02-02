@@ -9,8 +9,9 @@ import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.ioc.BeanFactory;
 import org.tiger.common.ioc.SingletonBean;
-import org.tiger.common.parameter.Parameters;
 import org.tiger.common.threadpool.ThreadPool;
+import org.tiger.common.util.ThreadUtil;
+import org.tiger.communication.client.Client;
 import org.tiger.communication.client.util.NetUtil;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
 import org.tiger.communication.server.Server;
@@ -47,11 +48,13 @@ public class Starter {
             logger.info("tiger 启动开始...");
 
             // 初始化所有的Bean
-            BeanFactory.autowireBean(Parameters.getAutowireBeanParameter());
+            BeanFactory.autowireBean();
 
             //1. 启动Server
             logger.info("启动Server开始...");
-            new Server(PORT).run();
+            ThreadPool.getThreadPoolExecutor().execute(() -> {
+                new Server().run();
+            });
             logger.info("启动Server结束");
 
             //2. 获取并缓存局域网所有IP
@@ -142,9 +145,14 @@ public class Starter {
         Map<String, Channel> map = new ConcurrentHashMap<>();
         MemoryShareDataRegion.localAreaNetworkIp.forEach(ip -> {
             //只要端口开启就认为此IP上启动着tiger
-            Channel channel = ObjectFactory.instance().getClient().connect(ip, PORT);
+            Client client = ObjectFactory.instance().getClient();
+            ThreadPool.getThreadPoolExecutor().execute(() -> {
+                client.connect(ip, PORT);
+            });
+            ThreadUtil.sleep(1000);
+            Channel channel = client.getChannel();
             if (channel != null) {
-                map.put(ip,channel);
+                map.put(ip, channel);
             }
         });
         return map;

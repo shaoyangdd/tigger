@@ -38,7 +38,7 @@ public class ConnectionPool {
     }
 
     public ConnectionPool() {
-        init(initSize, totalSize);
+        //init(initSize, totalSize);
     }
 
     /**

@@ -10,6 +10,8 @@ import org.tiger.command.Event;
 import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.threadpool.ThreadPool;
+import org.tiger.common.util.ThreadUtil;
 import org.tiger.common.util.TigerUtil;
 import org.tiger.communication.client.Client;
 import org.tiger.communication.client.Message;
@@ -86,13 +88,18 @@ public class MessageService {
 
         // 缓存映射
         String ip = incoming.remoteAddress().toString();
-        MemoryShareDataRegion.tigerRunningIpChannelS2C.put(ip,incoming);
+        MemoryShareDataRegion.tigerRunningIpChannelS2C.put(ip, incoming);
         logger.info("缓存映射,IP:" + ip + "channel:" + incoming.id().asShortText());
 
         // 主动连它
-        Channel channel = ObjectFactory.instance().getClient().connect(ip, PORT);
+        Client client = ObjectFactory.instance().getClient();
+        ThreadPool.getThreadPoolExecutor().execute(() -> {
+            client.connect(ip, PORT);
+        });
+        ThreadUtil.sleep(1000);
+        Channel channel = client.getChannel();
         if (channel != null) {
-            MemoryShareDataRegion.tigerRunningIpChannel.put(ip,channel);
+            MemoryShareDataRegion.tigerRunningIpChannel.put(ip, channel);
             logger.info("连接成功,IP:" + ip);
         } else {
             logger.info("连接失败,IP:" + ip);

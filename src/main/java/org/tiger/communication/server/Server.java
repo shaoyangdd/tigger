@@ -6,6 +6,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.communication.client.Client;
 
@@ -13,6 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * 服务器启动类
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
@@ -21,13 +23,10 @@ public class Server {
 
     private Logger logger = Logger.getLogger(Client.class.getName());
 
-    private int port;
+    @InjectParameter
+    private String port;
 
     public Server() {
-    }
-
-    public Server(int port) {
-        this.port = port;
     }
 
     public void run() {
@@ -46,12 +45,12 @@ public class Server {
             logger.info("tiger服务器启动成功端口号:" + port);
 
             // 绑定端口，开始接收进来的连接
-            ChannelFuture f = b.bind(port).sync(); // (7)
+            ChannelFuture f = b.bind(Integer.parseInt(port)).sync(); // (7)
 
             // 等待服务器  socket 关闭 。
             // 在这个例子中，这不会发生，但你可以优雅地关闭你的服务器。
             f.channel().closeFuture().sync();
-
+            logger.info("server =====");
         } catch (Exception e) {
             logger.info("tiger服务器启动失败!");
           throw new RuntimeException(e);

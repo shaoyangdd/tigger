@@ -1,6 +1,5 @@
 package org.tiger.common.ioc;
 
-import org.tiger.common.datastruct.AutowireBeanParameter;
 import org.tiger.common.log.TigerLogger;
 import org.tiger.common.parameter.FileConfigParameterReader;
 import org.tiger.common.parameter.ParameterReader;
@@ -10,8 +9,10 @@ import org.tiger.common.util.PackageUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -35,19 +36,29 @@ public class BeanFactory {
     /**
      * 自动实例化所有的本包下的bean
      */
-    public static void autowireBean(AutowireBeanParameter autowireBeanParameter) {
+    public static void autowireBean() {
+        long start = System.currentTimeMillis();
         //加载参数
         parameterReader.read();
-
+        //获取启动注解
+        EnableIoc annotation = getEnableIocAnnotation();
+        if (annotation == null) {
+            throw new RuntimeException("调用:autowireBean的类没有配置启动注解:@EnableIoc");
+        }
         //1. 扫描包下所有的bean List<Class> 不包含接口，枚举
         logger.info("开始扫描包下的类...");
-        List<String> className = PackageUtil.getClassName(autowireBeanParameter.getPackageName());
-        for (String s : className) {
+        String[] packages = annotation.scanPackages();
+        Set<String> classNameSet = new HashSet<>();
+        for (String aPackage : packages) {
+            List<String> className = PackageUtil.getClassName(aPackage);
+            classNameSet.addAll(className);
+        }
+        for (String s : classNameSet) {
             logger.info("class Name:" + s);
         }
         //2. 实例化所有bean //TODO 处理接口、抽象类
         logger.info("实例化所有的bean...");
-        for (String s : className) {
+        for (String s : classNameSet) {
             Class<?> clazz = loadClass(s);
             if (clazz != null) {
                 Annotation[] annotations = clazz.getAnnotations();
@@ -76,8 +87,13 @@ public class BeanFactory {
                 }
             }
         });
-        logger.info("Ioc容器初始化bean完成。");
+        logger.info("Ioc容器初始化bean完成, 耗时:" + (System.currentTimeMillis() - start) + "ms");
     }
+
+    public static <T> T getBean(Class<T> tClass) {
+        return (T) beanMap.get(tClass);
+    }
+
 
     /**
      * 加载class
@@ -191,5 +207,28 @@ public class BeanFactory {
             }
         }
         return false;
+    }
+
+    /**
+     * 判断调用链的类上是不是加了@EnableIoc注解
+     *
+     * @return EnableIoc注解
+     */
+    private static EnableIoc getEnableIocAnnotation() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            String className = stackTraceElement.getClassName();
+            Class clazz = loadClass(className);
+            if (clazz == null) {
+                continue;
+            }
+            Annotation[] annotations = clazz.getAnnotations();
+            for (Annotation annotation1 : annotations) {
+                if (EnableIoc.class.equals(annotation1.annotationType())) {
+                    return (EnableIoc) annotation1;
+                }
+            }
+        }
+        return null;
     }
 }
