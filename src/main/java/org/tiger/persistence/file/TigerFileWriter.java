@@ -8,6 +8,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * 文件写
+ *
+ * @author 康绍飞
+ * @date 2021-02-03
+ */
 @SingletonBean
 public class TigerFileWriter {
 

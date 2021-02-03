@@ -6,11 +6,11 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.communication.client.Client;
-
-import java.util.logging.Logger;
 
 /**
  * 服务器启动类
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 @SingletonBean
 public class Server {
 
-    private Logger logger = Logger.getLogger(Client.class.getName());
+    private Logger logger = LoggerFactory.getLogger(Client.class.getName());
 
     @InjectParameter
     private String port;

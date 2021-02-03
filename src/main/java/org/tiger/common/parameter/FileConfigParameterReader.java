@@ -1,13 +1,14 @@
 package org.tiger.common.parameter;
 
-import org.tiger.common.log.TigerLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tiger.common.ioc.BeanFactory;
 
 import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * 从配置文件读取参数
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class FileConfigParameterReader implements ParameterReader {
 
-    private static Logger logger = TigerLogger.getLogger(FileConfigParameterReader.class.getSimpleName());
+    private static Logger logger = LoggerFactory.getLogger(BeanFactory.class.getSimpleName());
 
     private static Properties properties = new Properties();
 
@@ -46,7 +47,6 @@ public class FileConfigParameterReader implements ParameterReader {
             logger.info("key:" + key + ", value:" + properties.get(key));
         }
         logger.info("读取配置文件结束");
-        Parameters.getParameter().putAll(resultMap);
         return resultMap;
     }
 

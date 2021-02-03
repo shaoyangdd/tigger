@@ -1,15 +1,17 @@
 package org.tiger.communication.client.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class NetUtil {
 
-    private static Logger logger = Logger.getLogger(NetUtil.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(NetUtil.class.getName());
 
     /**
      * 在window操作平台上获取局域网所有IP

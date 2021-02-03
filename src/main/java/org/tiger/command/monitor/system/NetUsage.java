@@ -1,11 +1,12 @@
 package org.tiger.command.monitor.system;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.datastruct.NetInfo;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.logging.Logger;
 
 /**
  * 采集网络带宽使用率
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class NetUsage implements ResourceUsage {
 
-    private static Logger log = Logger.getLogger(NetUsage.class.getSimpleName());
+    private static Logger log = LoggerFactory.getLogger(NetUsage.class.getSimpleName());
 
     private static NetUsage INSTANCE = new NetUsage();
 

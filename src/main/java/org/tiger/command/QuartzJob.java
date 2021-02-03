@@ -2,10 +2,10 @@ package org.tiger.command;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
-
-import java.util.logging.Logger;
 
 import static org.tiger.command.Event.TASK_FLOW_COMPLETE;
 import static org.tiger.command.Event.TASK_FLOW_START;
@@ -18,7 +18,7 @@ import static org.tiger.command.Event.TASK_FLOW_START;
  */
 public class QuartzJob implements Job {
 
-    private Logger logger = Logger.getLogger(QuartzJob.class.getSimpleName());
+    private Logger logger = LoggerFactory.getLogger(QuartzJob.class.getSimpleName());
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {

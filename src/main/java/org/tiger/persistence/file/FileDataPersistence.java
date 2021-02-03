@@ -38,7 +38,7 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
     @Override
     @SuppressWarnings("unchecked")
     public T findOne(T record) {
-        String line = tigerFileReader.readAndFind(record, (s, r) -> {
+        String line = tigerFileReader.readAndFind(record, (s) -> {
             Record fileRecord = recordOperator.stringToRecord(s, record.getClass());
             return record.getId() == fileRecord.getId()
                     || (fileRecord.getUnionKey() != null && fileRecord.getUnionKey().equals(record.getUnionKey()));

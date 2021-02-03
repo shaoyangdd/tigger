@@ -1,5 +1,6 @@
 package org.tiger.common.parameter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,6 +13,6 @@ public class DatabaseParameterReader implements ParameterReader {
 
     @Override
     public Map<String, String> read() {
-        return null;
+        return new HashMap<>();
     }
 }

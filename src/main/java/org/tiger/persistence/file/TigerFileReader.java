@@ -59,7 +59,7 @@ public class TigerFileReader {
             bufferedReader = new BufferedReader(new FileReader(filePathResolver.getFile(record)));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                if (findCondition.find(line, record)) {
+                if (findCondition.find(line)) {
                     return line;
                 }
             }

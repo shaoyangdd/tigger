@@ -1,14 +1,17 @@
 package org.tiger.persistence.database.jdbc;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tiger.common.ioc.AfterInstance;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.parameter.Parameters;
+import org.tiger.common.util.StringUtil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.Logger;
 
 /**
  * 数据库连接池
@@ -19,7 +22,7 @@ import java.util.logging.Logger;
 @SingletonBean
 public class ConnectionPool {
 
-    private static Logger logger = Logger.getLogger(ConnectionPool.class.getSimpleName());
+    private static Logger logger = LoggerFactory.getLogger(ConnectionPool.class.getSimpleName());
 
     private int totalSize = 10;
 
@@ -38,31 +41,33 @@ public class ConnectionPool {
     }
 
     public ConnectionPool() {
-        //init(initSize, totalSize);
+
     }
 
     /**
      * 初始化连接池
-     *
-     * @param size      初始连接数
-     * @param totalSize 总连接数
      */
-    public void init(int size, int totalSize) {
+    @AfterInstance
+    public void init() {
         String user = Parameters.get("database.username");
         String password = Parameters.get("database.password");
         String url = Parameters.get("database.url");
-        logger.info("初始化连接池:userName:" + user + ",password:" + password + ",url:" + url);
-        connectionQueue = new ArrayBlockingQueue<>(totalSize);
-        for (int i = 0; i < size; i++) {
-            Connection conn;
-            try {
-                conn = DriverManager.getConnection(url, user, password);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        if (StringUtil.isNotEmpty(url)) {
+            logger.info("初始化连接池:userName:" + user + ",password:" + password + ",url:" + url);
+            connectionQueue = new ArrayBlockingQueue<>(totalSize);
+            for (int i = 0; i < initSize; i++) {
+                Connection conn;
+                try {
+                    conn = DriverManager.getConnection(url, user, password);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                connectionQueue.add(conn);
             }
-            connectionQueue.add(conn);
+            logger.info("初始化连接池结束，总连接数:" + totalSize + ",初始连接数:" + initSize);
+        } else {
+            logger.info("没有数据库连接配置，不需要初始化");
         }
-        logger.info("初始化连接池结束，总连接数:" + totalSize + ",初始连接数:" + size);
     }
 
     /**

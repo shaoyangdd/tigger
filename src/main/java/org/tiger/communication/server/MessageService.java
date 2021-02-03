@@ -6,6 +6,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.command.Event;
 import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
@@ -19,7 +21,6 @@ import org.tiger.communication.client.MessageProtobuf;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static org.tiger.common.Constant.IP;
 import static org.tiger.common.Constant.PORT;
@@ -29,7 +30,7 @@ import static org.tiger.common.Constant.PORT;
  */
 public class MessageService {
 
-    private static Logger logger = Logger.getLogger(Client.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(Client.class.getName());
 
     /**
      * 所有信道

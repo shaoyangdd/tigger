@@ -1,11 +1,12 @@
 package org.tiger.command.monitor.system;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.datastruct.MemoryInfo;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.logging.Logger;
 
 /**
  * 采集内存使用率
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class MemUsage implements ResourceUsage {
 
-    private static Logger log = Logger.getLogger(MemUsage.class.getSimpleName());
+    private static Logger log = LoggerFactory.getLogger(MemUsage.class.getSimpleName());
 
     private static MemUsage INSTANCE = new MemUsage();
 

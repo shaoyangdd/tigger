@@ -1,5 +1,7 @@
 package org.tiger.command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.LogicTaskNode;
@@ -14,7 +16,6 @@ import org.tiger.common.util.TigerUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @SingletonBean
 public class TaskFlowScheduler {
 
-    private Logger logger = Logger.getLogger(TaskFlowScheduler.class.getSimpleName());
+    private Logger logger = LoggerFactory.getLogger(TaskFlowScheduler.class.getSimpleName());
 
     /**
      * 遍历并执行任务

@@ -1,6 +1,8 @@
 package org.tiger.command.monitor;
 
 import com.alibaba.fastjson.JSON;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.command.Event;
 import org.tiger.common.datastruct.JvmInfo;
 import org.tiger.common.datastruct.TigerTaskExecute;
@@ -13,7 +15,6 @@ import java.lang.management.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 import static org.tiger.common.Constant.MB;
 
@@ -25,7 +26,7 @@ import static org.tiger.common.Constant.MB;
 @SingletonBean
 public class JvmMonitor implements Monitor {
 
-    private static Logger logger = Logger.getLogger(JvmMonitor.class.getSimpleName());
+    private static Logger logger = LoggerFactory.getLogger(JvmMonitor.class.getSimpleName());
 
     private DataPersistence<JvmInfo> dataPersistence;
 

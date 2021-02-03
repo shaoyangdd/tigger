@@ -3,14 +3,15 @@ package org.tiger.communication.client;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class ProtobufClientHandler extends SimpleChannelInboundHandler<MessageProtobuf.Msg> {
 
-    private Logger logger = Logger.getLogger(ProtobufClientHandler.class.getName());
+    private Logger logger = LoggerFactory.getLogger(ProtobufClientHandler.class.getName());
 
     public static Map<String, Message> messageMap = new HashMap<>();
 

@@ -1,8 +1,8 @@
 package org.tiger.common.ioc;
 
-import org.tiger.common.log.TigerLogger;
-import org.tiger.common.parameter.FileConfigParameterReader;
-import org.tiger.common.parameter.ParameterReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tiger.common.parameter.ParameterReaders;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.PackageUtil;
 
@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 /**
  * bean工厂，简单轻量的IOC容器
@@ -24,14 +23,14 @@ import java.util.logging.Logger;
  */
 public class BeanFactory {
 
-    private static Logger logger = TigerLogger.getLogger(BeanFactory.class.getSimpleName());
+    private static Logger logger = LoggerFactory.getLogger(BeanFactory.class.getSimpleName());
 
     /**
      * bean容器
      */
     private static final Map<Class<?>, Object> beanMap = new ConcurrentHashMap<>();
 
-    private static ParameterReader parameterReader = new FileConfigParameterReader();
+    private static ParameterReaders parameterReaders = new ParameterReaders();
 
     /**
      * 自动实例化所有的本包下的bean
@@ -39,7 +38,7 @@ public class BeanFactory {
     public static void autowireBean() {
         long start = System.currentTimeMillis();
         //加载参数
-        parameterReader.read();
+        parameterReaders.loadParameters();
         //获取启动注解
         EnableIoc annotation = getEnableIocAnnotation();
         if (annotation == null) {

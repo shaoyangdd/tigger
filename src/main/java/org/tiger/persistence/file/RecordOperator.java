@@ -1,6 +1,7 @@
 package org.tiger.persistence.file;
 
 import com.alibaba.fastjson.JSON;
+import org.tiger.common.ioc.SingletonBean;
 
 /**
  * 记录操作器
@@ -8,6 +9,7 @@ import com.alibaba.fastjson.JSON;
  * @author 康绍飞
  * @date 2021-01-26
  */
+@SingletonBean
 public class RecordOperator {
 
     /**

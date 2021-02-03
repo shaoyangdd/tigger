@@ -2,6 +2,8 @@ package org.tiger.command;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.LogicTaskNode;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 import static org.tiger.command.Event.HEART_BEAT;
 import static org.tiger.common.Constant.*;
@@ -37,7 +38,7 @@ import static org.tiger.communication.server.MessageType.ONLINE_NOTICE;
 @SingletonBean
 public class Starter {
 
-    private static Logger logger = Logger.getLogger(Starter.class.getSimpleName());
+    private static Logger logger = LoggerFactory.getLogger(Starter.class.getSimpleName());
 
     private DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence;
 
