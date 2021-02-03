@@ -37,7 +37,7 @@ public class IdGenerator {
     }
 
     synchronized public long getNextSeq() {
-        long seq = atomicLong.getAndDecrement();
+        long seq = atomicLong.getAndIncrement();
         tigerFileWriter.writeOneLine(file, String.valueOf(seq));
         return seq;
     }
