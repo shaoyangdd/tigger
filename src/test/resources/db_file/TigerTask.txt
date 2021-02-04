@@ -1,0 +1,8 @@
+{"id":0,"searchParam":{},"taskName":"清算文件下载","unionKey":"清算文件下载"}
+{"id":1,"searchParam":{},"taskName":"清算文件拆分","unionKey":"清算文件拆分"}
+{"id":2,"searchParam":{},"taskName":"清算文件待入账","unionKey":"清算文件待入账"}
+{"id":3,"searchParam":{},"taskName":"入账","unionKey":"入账"}
+{"id":4,"searchParam":{},"taskName":"账单","unionKey":"账单"}
+{"id":5,"searchParam":{},"taskName":"生成账单文件","unionKey":"生成账单文件"}
+{"id":6,"searchParam":{},"taskName":"生成账单短信","unionKey":"生成账单短信"}
+{"id":7,"searchParam":{},"taskName":"文件上传","unionKey":"文件上传"}

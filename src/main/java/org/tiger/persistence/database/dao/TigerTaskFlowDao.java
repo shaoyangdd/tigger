@@ -19,15 +19,15 @@ public class TigerTaskFlowDao implements BaseDao<TigerTaskFlow> {
         ResultSet resultSet = null;
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("select * from tiger_task_flow where previous_task_id='" + previousId + "'");
+            resultSet = statement.executeQuery("select * from tiger_task_flow where previous_task_id='(" + previousId + "')");
             List<TigerTaskFlow> tigerTaskFlows = new ArrayList<>();
             while (resultSet.next()) {
                 TigerTaskFlow tigerTaskFlow = new TigerTaskFlow();
                 tigerTaskFlow.setId(resultSet.getLong(1));
                 tigerTaskFlow.setTaskName(resultSet.getString(2));
-                tigerTaskFlow.setPreviousTaskId(resultSet.getLong(3));
+                tigerTaskFlow.setPreviousTaskId(resultSet.getString(3));
                 tigerTaskFlow.setPreviousTaskStatus(resultSet.getString(4));
-                tigerTaskFlow.setNextTaskId(resultSet.getLong(5));
+                tigerTaskFlow.setNextTaskId(resultSet.getString(5));
                 tigerTaskFlow.setTaskParameter(resultSet.getString(6));
                 tigerTaskFlows.add(tigerTaskFlow);
             }
@@ -51,7 +51,7 @@ public class TigerTaskFlowDao implements BaseDao<TigerTaskFlow> {
 
     @Override
     public List<TigerTaskFlow> findList(TigerTaskFlow record) {
-        return getTigerTaskFlowByPreviousId(String.valueOf(record.getPreviousTaskId()));
+        return getTigerTaskFlowByPreviousId(record.getPreviousTaskId());
     }
 
     @Override
@@ -63,4 +63,5 @@ public class TigerTaskFlowDao implements BaseDao<TigerTaskFlow> {
     public int delete(TigerTaskFlow record) {
         return 0;
     }
+
 }

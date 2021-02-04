@@ -10,6 +10,7 @@ import org.tiger.common.datastruct.LogicTaskNode;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.ioc.BeanFactory;
+import org.tiger.common.ioc.InjectCustomBean;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.threadpool.ThreadPool;
 import org.tiger.common.util.ThreadUtil;
@@ -19,6 +20,7 @@ import org.tiger.communication.message.encoder.TigerMessageEncoder;
 import org.tiger.communication.server.Server;
 import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.database.jdbc.ConnectionPool;
+import org.tiger.persistence.file.FileDataPersistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +42,10 @@ public class Starter {
 
     private static Logger logger = LoggerFactory.getLogger(Starter.class.getSimpleName());
 
-    private DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence;
+    @InjectCustomBean
+    private FileDataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence;
 
+    @InjectCustomBean
     private DataPersistence<TigerTask> tigerTaskDataPersistence;
 
     public void run() {
@@ -160,7 +164,7 @@ public class Starter {
     }
 
 
-    private LogicTaskNode buildLogicTaskNode() {
+    public LogicTaskNode buildLogicTaskNode() {
         // 伪头节点 创建伪头节点是为了保证头只有一个节点，好遍历及其它操作
         LogicTaskNode fakeHead = new LogicTaskNode();
         List<LogicTaskNode> realHeadNode = getNextTigerTaskList(EMPTY_STRING, true);

@@ -2,9 +2,13 @@ package org.tiger.common.ioc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.parameter.ParameterReaders;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.PackageUtil;
+import org.tiger.persistence.DataPersistence;
+import org.tiger.persistence.file.FileDataPersistence;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -29,6 +33,11 @@ public class BeanFactory {
      * bean容器
      */
     private static final Map<Class<?>, Object> beanMap = new ConcurrentHashMap<>();
+
+    /**
+     * bean自定义容器，存放使用者自己定义的bean
+     */
+    private static final Map<String, Object> customBeanMap = new ConcurrentHashMap<>();
 
     private static ParameterReaders parameterReaders = new ParameterReaders();
 
@@ -57,6 +66,9 @@ public class BeanFactory {
         }
         //2. 实例化所有bean //TODO 处理接口、抽象类
         logger.info("实例化所有的bean...");
+        //先实例化、注入用户自定义的bean
+        customBean();
+        //再实例化、注入加了注解的bean
         for (String s : classNameSet) {
             Class<?> clazz = loadClass(s);
             if (clazz != null) {
@@ -131,6 +143,7 @@ public class BeanFactory {
      *
      * @param beanMap bean容器
      * @param clazz   类对象
+     * @param obj     要被注入的对象
      * @param count   递归次数，超过N就是循环依赖，做中断处理
      */
     private static void inject(Map<Class<?>, Object> beanMap, Class<?> clazz, Object obj, int count) {
@@ -152,6 +165,12 @@ public class BeanFactory {
                 } else if (hasAnnotation(annotations, InjectParameter.class)) {
                     //注入参数
                     setValue(field, obj, Parameters.get(field.getName()));
+                } else if (hasAnnotation(annotations, InjectCustomBean.class)) {
+                    logger.info("注入InjectCustomBean:{}", field.getName());
+                    //注入用户自定义的bean
+                    Object fieldValue = customBeanMap.get(field.getName()) != null ? customBeanMap.get(field.getName()) : beanMap.get(field.getType());
+                    setValue(field, obj, fieldValue);
+                    inject(beanMap, fieldValue.getClass(), fieldValue, ++count);
                 }
             }
         }
@@ -229,5 +248,15 @@ public class BeanFactory {
             }
         }
         return null;
+    }
+
+    /**
+     * 自定义Bean
+     */
+    private static void customBean() {
+        DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence = new FileDataPersistence<>();
+        DataPersistence<TigerTask> tigerTaskDataPersistence = new FileDataPersistence<>();
+        customBeanMap.put("tigerTaskFlowDataPersistence", tigerTaskFlowDataPersistence);
+        customBeanMap.put("tigerTaskDataPersistence", tigerTaskDataPersistence);
     }
 }

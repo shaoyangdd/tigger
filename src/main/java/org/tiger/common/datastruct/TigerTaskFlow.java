@@ -10,11 +10,17 @@ public class TigerTaskFlow extends AbstractRecord {
 
     private String taskName;
 
-    private long previousTaskId;
+    /**
+     * 多个previousTaskId，用逗号相割
+     */
+    private String previousTaskId;
 
     private String previousTaskStatus;
 
-    private long nextTaskId;
+    /**
+     * 多个nextTaskId，用逗号相割
+     */
+    private String nextTaskId;
 
     private String taskParameter;
 
@@ -39,14 +45,6 @@ public class TigerTaskFlow extends AbstractRecord {
         this.taskParameter = taskParameter;
     }
 
-    public long getPreviousTaskId() {
-        return previousTaskId;
-    }
-
-    public void setPreviousTaskId(long previousTaskId) {
-        this.previousTaskId = previousTaskId;
-    }
-
     public String getPreviousTaskStatus() {
         return previousTaskStatus;
     }
@@ -55,11 +53,19 @@ public class TigerTaskFlow extends AbstractRecord {
         this.previousTaskStatus = previousTaskStatus;
     }
 
-    public long getNextTaskId() {
+    public String getPreviousTaskId() {
+        return previousTaskId;
+    }
+
+    public void setPreviousTaskId(String previousTaskId) {
+        this.previousTaskId = previousTaskId;
+    }
+
+    public String getNextTaskId() {
         return nextTaskId;
     }
 
-    public void setNextTaskId(long nextTaskId) {
+    public void setNextTaskId(String nextTaskId) {
         this.nextTaskId = nextTaskId;
     }
 }
