@@ -155,7 +155,7 @@ public class BeanFactory {
         for (Field field : fields) {
             Annotation[] annotations = field.getAnnotations();
             if (annotations.length != 0) {
-                if (hasAnnotation(annotations, InjectByType.class)) {
+                if (hasAnnotation(annotations, Inject.class)) {
                     Object fieldValue = beanMap.get(field.getType());
                     if (fieldValue != null) {//是包下的类
                         setValue(field, obj, fieldValue);

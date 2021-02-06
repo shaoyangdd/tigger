@@ -13,6 +13,7 @@ import org.tiger.common.ioc.BeanFactory;
 import org.tiger.common.ioc.InjectCustomBean;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.threadpool.ThreadPool;
+import org.tiger.common.util.CollectionUtil;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.communication.client.Client;
 import org.tiger.communication.client.util.NetUtil;
@@ -167,7 +168,7 @@ public class Starter {
     public LogicTaskNode buildLogicTaskNode() {
         // 伪头节点 创建伪头节点是为了保证头只有一个节点，好遍历及其它操作
         LogicTaskNode fakeHead = new LogicTaskNode();
-        List<LogicTaskNode> realHeadNode = getNextTigerTaskList(EMPTY_STRING, true);
+        List<LogicTaskNode> realHeadNode = getNextTigerTaskNodeList(EMPTY_STRING, true);
         fakeHead.setPreviousTigerTaskList(null);
         fakeHead.setCurrentTigerTask(null);
         fakeHead.setNextTigerTaskList(realHeadNode);
@@ -178,15 +179,23 @@ public class Starter {
     }
 
 
-    private List<LogicTaskNode> getNextTigerTaskList(String previousId, boolean isHead) {
+    private List<LogicTaskNode> getNextTigerTaskNodeList(String previousId, boolean isHead) {
         TigerTaskFlow tigerTaskFlowSearch = new TigerTaskFlow();
         tigerTaskFlowSearch.searchParam().put("previousTaskId", previousId);
+        //包含关系，而不是相等，逗号分割所以这样
+        tigerTaskFlowSearch.searchParam().put("contain", true);
+        logger.info("getNextTigerTaskNodeList:======={},{}", previousId, isHead);
         List<TigerTaskFlow> tigerTaskFlowList = tigerTaskFlowDataPersistence.findList(tigerTaskFlowSearch);
-        if (tigerTaskFlowList.size() == 0 && isHead) {
-            throw new RuntimeException("没有定义任务流");
+        if (tigerTaskFlowList.size() == 0) {
+            if (isHead) {
+                throw new RuntimeException("没有定义任务流");
+            } else {
+                return null;
+            }
         }
         List<LogicTaskNode> nodeList = new ArrayList<>();
         for (TigerTaskFlow tigerTaskFlow : tigerTaskFlowList) {
+            logger.info("next:{}", JSON.toJSONString(tigerTaskFlow));
             LogicTaskNode logicTaskNode = new LogicTaskNode();
             //先填上task
             TigerTask search = new TigerTask();
@@ -197,20 +206,30 @@ public class Starter {
         return nodeList;
     }
 
-    private void buildNextNode(LogicTaskNode previousNode, List<LogicTaskNode> nextNodeList) {
-
-        List<LogicTaskNode> previousNodeList = new ArrayList<>(1);
-        previousNodeList.add(previousNode);
-
+    /**
+     * 构建下一个节点
+     *
+     * @param currentNode  当前节点
+     * @param nextNodeList 下面节点
+     */
+    private void buildNextNode(LogicTaskNode currentNode, List<LogicTaskNode> nextNodeList) {
+        //构建当前节点
+        TigerTask tigerTask = currentNode.getCurrentTigerTask();
+        logger.info("构建:{}节点", tigerTask == null ? "" : tigerTask.getTaskName());
+        currentNode.setNextTigerTaskList(nextNodeList);
+        currentNode.setDummyNode(false);
+        //构建后面的节点
+        List<LogicTaskNode> currentNodeList = new ArrayList<>(1);
+        currentNodeList.add(currentNode);
         for (LogicTaskNode nextNode : nextNodeList) {
-            List<LogicTaskNode> nextTigerTaskList2 = getNextTigerTaskList(String.valueOf(nextNode.getCurrentTigerTask().getId()), false);
-            LogicTaskNode node = new LogicTaskNode();
-            //再把节点的前后补上
-            node.setPreviousTigerTaskList(previousNodeList);
-            node.setNextTigerTaskList(nextTigerTaskList2);
-            node.setDummyNode(false);
+            nextNode.setPreviousTigerTaskList(currentNodeList);
+            List<LogicTaskNode> nextNextTigerTaskList = getNextTigerTaskNodeList(String.valueOf(nextNode.getCurrentTigerTask().getId()), false);
+            nextNode.setNextTigerTaskList(nextNextTigerTaskList);
+            nextNode.setDummyNode(false);
             //递归构建
-            buildNextNode(node, nextTigerTaskList2);
+            if (CollectionUtil.isNotEmpty(nextNextTigerTaskList)) {
+                buildNextNode(nextNode, nextNextTigerTaskList);
+            }
         }
     }
 }

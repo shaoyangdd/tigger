@@ -2,12 +2,14 @@ package org.tiger.command;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tiger.command.monitor.EventListener;
 import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.LogicTaskNode;
 import org.tiger.common.datastruct.TaskExecuteStatus;
 import org.tiger.common.datastruct.TaskStatus;
 import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.threadpool.ThreadPool;
 import org.tiger.common.util.ThreadUtil;
@@ -28,6 +30,9 @@ import java.util.stream.Collectors;
 public class TaskFlowScheduler {
 
     private Logger logger = LoggerFactory.getLogger(TaskFlowScheduler.class.getSimpleName());
+
+    @Inject
+    private EventListener eventListener;
 
     /**
      * 遍历并执行任务
@@ -73,10 +78,10 @@ public class TaskFlowScheduler {
                 //通知其它IP上本任务开始运行
                 //TODO 创建 TigerTaskExecute实例入库
                 Map<String, Object> param = TigerUtil.buildTigerTaskExecutionParamMap(null, tigerTask);
-                ObjectFactory.instance().getEventListener().listen(Event.TASK_START, param);
+                eventListener.listen(Event.TASK_START, param);
                 execute(tigerTask);
                 //通知其它IP本任务运行结束
-                ObjectFactory.instance().getEventListener().listen(Event.TASK_COMPLETE, param);
+                eventListener.listen(Event.TASK_COMPLETE, param);
             });
         }
         //等上面的都执行完

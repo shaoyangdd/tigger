@@ -6,7 +6,7 @@ import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.Standard;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskResourceUse;
-import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.database.dao.JdbcTemplate;
@@ -31,7 +31,7 @@ public class Calculator {
 
     private DataPersistence<TigerTaskResourceUse> dataPersistence;
 
-    @InjectByType
+    @Inject
     private JdbcTemplate jdbcTemplate;
 
     /**

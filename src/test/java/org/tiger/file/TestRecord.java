@@ -23,8 +23,8 @@ public class TestRecord implements Record {
     }
 
     @Override
-    public long getId() {
-        return 0;
+    public Long getId() {
+        return 0L;
     }
 
     @Override

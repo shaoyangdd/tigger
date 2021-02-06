@@ -1,8 +1,8 @@
 {"id":0,"nextTaskId":"1","previousTaskId":"","searchParam":{},"taskName":"清算文件下载"}
-{"id":0,"nextTaskId":"2","previousTaskId":"0","searchParam":{},"taskName":"清算文件拆分"}
-{"id":0,"nextTaskId":"3","previousTaskId":"1","searchParam":{},"taskName":"清算文件待入账"}
-{"id":0,"nextTaskId":"4","previousTaskId":"2","searchParam":{},"taskName":"入账"}
-{"id":0,"nextTaskId":"5,6","previousTaskId":"3","searchParam":{},"taskName":"账单"}
-{"id":0,"nextTaskId":"7","previousTaskId":"4","searchParam":{},"taskName":"账单文件"}
-{"id":0,"nextTaskId":"7","previousTaskId":"4","searchParam":{},"taskName":"账单短信"}
-{"id":0,"nextTaskId":"","previousTaskId":"5,6","searchParam":{},"taskName":"文件上传"}
+{"id":1,"nextTaskId":"2","previousTaskId":"0","searchParam":{},"taskName":"清算文件拆分"}
+{"id":2,"nextTaskId":"3","previousTaskId":"1","searchParam":{},"taskName":"清算文件待入账"}
+{"id":3,"nextTaskId":"4","previousTaskId":"2","searchParam":{},"taskName":"入账"}
+{"id":4,"nextTaskId":"5,6","previousTaskId":"3","searchParam":{},"taskName":"账单"}
+{"id":5,"nextTaskId":"7","previousTaskId":"4","searchParam":{},"taskName":"账单文件"}
+{"id":6,"nextTaskId":"7","previousTaskId":"4","searchParam":{},"taskName":"账单短信"}
+{"id":7,"nextTaskId":"","previousTaskId":"5,6","searchParam":{},"taskName":"文件上传"}

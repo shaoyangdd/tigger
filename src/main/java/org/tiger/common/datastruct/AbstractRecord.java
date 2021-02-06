@@ -10,7 +10,7 @@ public abstract class AbstractRecord implements Record {
     /**
      * 物理主键
      */
-    private long id;
+    private Long id;
 
     private Map<String, Object> searchParam = new HashMap<>();
 
@@ -20,7 +20,7 @@ public abstract class AbstractRecord implements Record {
     }
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

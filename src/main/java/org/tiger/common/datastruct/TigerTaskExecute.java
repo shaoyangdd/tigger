@@ -18,7 +18,7 @@ public class TigerTaskExecute extends AbstractRecord {
 
     private String taskParameter;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

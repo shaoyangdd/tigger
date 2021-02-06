@@ -23,7 +23,7 @@ public interface Record {
      *
      * @return id
      */
-    long getId();
+    Long getId();
 
     /**
      * toString

@@ -1,7 +1,7 @@
 package org.tiger.persistence.file.id;
 
 import org.tiger.common.ioc.AfterInstance;
-import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.file.TigerFileReader;
@@ -25,10 +25,10 @@ public class IdGenerator {
 
     private AtomicLong atomicLong;
 
-    @InjectByType
+    @Inject
     private TigerFileReader tigerFileReader;
 
-    @InjectByType
+    @Inject
     private TigerFileWriter tigerFileWriter;
 
     private File file;

@@ -1,15 +1,15 @@
 package org.tiger.persistence.file;
 
 import com.alibaba.fastjson.JSON;
-import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.file.id.IdGenerator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 文件持久化接口
@@ -20,19 +20,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SingletonBean
 public class FileDataPersistence<T extends Record> implements DataPersistence<T> {
 
-    @InjectByType
+    @Inject
     private IdGenerator idGenerator;
-    @InjectByType
+    @Inject
     private TigerFileWriter tigerFileWriter;
-    @InjectByType
+    @Inject
     private TigerFileReader tigerFileReader;
-    @InjectByType
+    @Inject
     private RecordOperator recordOperator;
 
     public int insert(T record) {
         record.setId(idGenerator.getNextSeq());
         tigerFileWriter.write(record);
-        return (int) record.getId();
+        return record.getId().intValue();
     }
 
     @Override
@@ -40,8 +40,12 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
     public T findOne(T record) {
         String line = tigerFileReader.readAndFind(record, (s) -> {
             Record fileRecord = recordOperator.stringToRecord(s, record.getClass());
-            return record.getId() == fileRecord.getId()
-                    || (fileRecord.getUnionKey() != null && fileRecord.getUnionKey().equals(record.getUnionKey()));
+            if (record.getId() != null && fileRecord.getId() != null) {
+                if (record.getId().equals(fileRecord.getId())) {
+                    return true;
+                }
+            }
+            return (fileRecord.getUnionKey() != null && fileRecord.getUnionKey().equals(record.getUnionKey()));
         });
         return (T) recordOperator.stringToRecord(line, record.getClass());
     }
@@ -49,16 +53,24 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
     @Override
     @SuppressWarnings("unchecked")
     public List<T> findList(T record) {
-        List<String> list = tigerFileReader.readAndFindList(record, ((line, paramMap) -> {
+        List<String> list = tigerFileReader.readAndFindList(record, (line, paramMap) -> {
             Map<String, Object> lineMap = JSON.parseObject(line, Map.class);
-            AtomicBoolean find = new AtomicBoolean(true);
-            paramMap.forEach((k, v) -> {
-                if (!v.equals(lineMap.get(k))) {
-                    find.set(false);
+            for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                Object recordValue = lineMap.get(key);
+                //TODO 先写死，后面好好搞一下
+                if ("previousTaskId".equals(key)) {
+                    String[] values = ((String) recordValue).split(",");
+                    if (Arrays.asList(values).contains(value)) {
+                        return true;
+                    }
+                } else if (value.equals(recordValue)) {
+                    return true;
                 }
-            });
-            return find.get();
-        }));
+            }
+            return false;
+        });
         List<T> recordList = new ArrayList<>(list.size());
         list.forEach(s -> {
             recordList.add((T) recordOperator.stringToRecord(s, record.getClass()));

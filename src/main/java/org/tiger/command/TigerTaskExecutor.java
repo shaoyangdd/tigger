@@ -10,7 +10,7 @@ import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskExecute;
-import org.tiger.common.ioc.InjectByType;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.persistence.database.dao.TigerTaskExecuteDao;
 
@@ -32,7 +32,7 @@ public class TigerTaskExecutor {
 
     private TigerTaskExecuteDao tigerTaskExecuteDao;
 
-    @InjectByType
+    @Inject
     private Calculator calculator;
 
     /**

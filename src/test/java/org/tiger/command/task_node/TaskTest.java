@@ -9,6 +9,7 @@ import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.ioc.BeanFactory;
 import org.tiger.common.ioc.EnableIoc;
+import org.tiger.common.util.CollectionUtil;
 
 @EnableIoc(scanPackages = "org.tiger")
 public class TaskTest {
@@ -24,7 +25,20 @@ public class TaskTest {
     @Test
     public void node() {
         LogicTaskNode logicTaskNode = starter.buildLogicTaskNode();
-        System.out.println(JSON.toJSONString(logicTaskNode));
+        print(logicTaskNode);
+    }
+
+    private void print(LogicTaskNode logicTaskNode) {
+        TigerTask tigerTask = logicTaskNode.getCurrentTigerTask();
+        System.out.println(tigerTask == null ? "【头节点】" : tigerTask.getTaskName());
+        System.out.println("↓");
+        if (CollectionUtil.isNotEmpty(logicTaskNode.getNextTigerTaskList())) {
+            for (LogicTaskNode taskNode : logicTaskNode.getNextTigerTaskList()) {
+                print(taskNode);
+            }
+        } else {
+            System.out.println("尾节点");
+        }
     }
 
     @Test
@@ -73,41 +87,49 @@ public class TaskTest {
         System.out.println("======================");
         // Flow
         TigerTaskFlow tigerTaskFlow0 = new TigerTaskFlow();
+        tigerTaskFlow0.setId(0);
         tigerTaskFlow0.setPreviousTaskId("");
         tigerTaskFlow0.setNextTaskId(String.valueOf(1));
         tigerTaskFlow0.setTaskName("清算文件下载");
 
         TigerTaskFlow tigerTaskFlow1 = new TigerTaskFlow();
+        tigerTaskFlow1.setId(1);
         tigerTaskFlow1.setPreviousTaskId("0");
         tigerTaskFlow1.setNextTaskId(2 + "");
         tigerTaskFlow1.setTaskName("清算文件拆分");
 
         TigerTaskFlow tigerTaskFlow2 = new TigerTaskFlow();
+        tigerTaskFlow2.setId(2);
         tigerTaskFlow2.setPreviousTaskId("1");
         tigerTaskFlow2.setNextTaskId(3 + "");
         tigerTaskFlow2.setTaskName("清算文件待入账");
 
         TigerTaskFlow tigerTaskFlow3 = new TigerTaskFlow();
+        tigerTaskFlow3.setId(3);
         tigerTaskFlow3.setPreviousTaskId("2");
         tigerTaskFlow3.setNextTaskId(4 + "");
         tigerTaskFlow3.setTaskName("入账");
 
         TigerTaskFlow tigerTaskFlow4 = new TigerTaskFlow();
+        tigerTaskFlow4.setId(4);
         tigerTaskFlow4.setPreviousTaskId("3");
         tigerTaskFlow4.setNextTaskId(5 + "," + 6);
         tigerTaskFlow4.setTaskName("账单");
 
         TigerTaskFlow tigerTaskFlow5_1 = new TigerTaskFlow();
+        tigerTaskFlow5_1.setId(5);
         tigerTaskFlow5_1.setPreviousTaskId("4");
         tigerTaskFlow5_1.setNextTaskId(7 + "");
         tigerTaskFlow5_1.setTaskName("账单文件");
 
         TigerTaskFlow tigerTaskFlow5_2 = new TigerTaskFlow();
+        tigerTaskFlow5_2.setId(6);
         tigerTaskFlow5_2.setPreviousTaskId("4");
         tigerTaskFlow5_2.setNextTaskId(7 + "");
         tigerTaskFlow5_2.setTaskName("账单短信");
 
         TigerTaskFlow tigerTaskFlow6 = new TigerTaskFlow();
+        tigerTaskFlow6.setId(7);
         tigerTaskFlow6.setPreviousTaskId("5,6");
         tigerTaskFlow6.setNextTaskId("");
         tigerTaskFlow6.setTaskName("文件上传");

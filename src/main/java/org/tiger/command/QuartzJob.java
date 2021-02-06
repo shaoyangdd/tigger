@@ -4,14 +4,15 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tiger.common.ObjectFactory;
+import org.tiger.command.monitor.EventListener;
 import org.tiger.common.cache.MemoryShareDataRegion;
+import org.tiger.common.ioc.BeanFactory;
 
 import static org.tiger.command.Event.TASK_FLOW_COMPLETE;
 import static org.tiger.command.Event.TASK_FLOW_START;
 
 /**
- * tiger启动器  这里是入口
+ * tiger定时启动器
  *
  * @author kangshaofei
  * @date 2020-01-16
@@ -23,9 +24,10 @@ public class QuartzJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         logger.info("启动定时任务");
-        ObjectFactory.instance().getEventListener().listen(TASK_FLOW_START, null);
-        ObjectFactory.instance().getTaskFlowScheduler().iterateAndExecute(MemoryShareDataRegion.taskNode);
-        ObjectFactory.instance().getEventListener().listen(TASK_FLOW_COMPLETE, null);
+        EventListener eventListener = BeanFactory.getBean(EventListener.class);
+        eventListener.listen(TASK_FLOW_START, null);
+        BeanFactory.getBean(TaskFlowScheduler.class).iterateAndExecute(MemoryShareDataRegion.taskNode);
+        eventListener.listen(TASK_FLOW_COMPLETE, null);
         logger.info("定时任务结束");
     }
 }
