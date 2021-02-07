@@ -6,10 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.tiger.command.Event;
 import org.tiger.common.datastruct.JvmInfo;
 import org.tiger.common.datastruct.TigerTaskExecute;
+import org.tiger.common.ioc.InjectCustomBean;
+import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.common.util.TigerUtil;
-import org.tiger.persistence.DataPersistence;
+import org.tiger.persistence.file.FileDataPersistence;
 
 import java.lang.management.*;
 import java.util.List;
@@ -20,6 +22,7 @@ import static org.tiger.common.Constant.MB;
 
 /**
  * JVM监视器
+ *
  * @author kangshaofei
  * @date 2020-01-16
  */
@@ -28,7 +31,11 @@ public class JvmMonitor implements Monitor {
 
     private static Logger logger = LoggerFactory.getLogger(JvmMonitor.class.getSimpleName());
 
-    private DataPersistence<JvmInfo> dataPersistence;
+    @InjectCustomBean
+    private FileDataPersistence<JvmInfo> dataPersistence;
+
+    @InjectParameter
+    private String jvmMonitorInterval;
 
     private Map<String, Event> map = new ConcurrentHashMap<>();
 
@@ -40,20 +47,31 @@ public class JvmMonitor implements Monitor {
      */
     @Override
     public void monitor(Event event, Map<String, ?> parameter) {
-        TigerTaskExecute tigerTaskExecute = (TigerTaskExecute) parameter.get(TigerUtil.TIGER_TASK_PARAM_MAP_EXECUTE_KEY);
-        if (tigerTaskExecute != null) {
-            String executeId = String.valueOf(tigerTaskExecute.getId());
-            if (event == Event.TASK_START) {
-                map.put(executeId, event);
-                new Thread(() -> {
-                    while (map.get(executeId) == Event.TASK_START) {
-                        ThreadUtil.sleep(1000);
-                        //获取JVM信息
-                        dataPersistence.insert(get());
+        if (parameter != null) {
+            TigerTaskExecute tigerTaskExecute = (TigerTaskExecute) parameter.get(TigerUtil.TIGER_TASK_PARAM_MAP_EXECUTE_KEY);
+            if (tigerTaskExecute != null) {
+                String executeId = String.valueOf(tigerTaskExecute.getId());
+                Event event1 = map.get(executeId);
+                if (event1 == null) {
+                    if (event == Event.TASK_START) {
+                        map.put(executeId, event);
+                        new Thread(() -> {
+                            logger.info("开始监控JVM,executeId:{}", executeId);
+                            //还要考虑超时报警
+                            while (map.get(executeId) == Event.TASK_START) {
+                                ThreadUtil.sleep(Integer.parseInt(jvmMonitorInterval));
+                                //获取JVM信息
+                                logger.info("获取JVM信息");
+                                dataPersistence.insert(get());
+                            }
+                            logger.info("JVM监控结束:{}", executeId);
+                        }).start();
                     }
-                }).start();
-            } else {
-                map.put(executeId, Event.TASK_COMPLETE);
+                } else {
+                    if (event1 == Event.TASK_START && event == Event.TASK_COMPLETE) {
+                        map.remove(executeId);
+                    }
+                }
             }
         }
     }

@@ -19,7 +19,6 @@ import org.tiger.communication.client.Client;
 import org.tiger.communication.client.util.NetUtil;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
 import org.tiger.communication.server.Server;
-import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.database.jdbc.ConnectionPool;
 import org.tiger.persistence.file.FileDataPersistence;
 
@@ -47,7 +46,7 @@ public class Starter {
     private FileDataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence;
 
     @InjectCustomBean
-    private DataPersistence<TigerTask> tigerTaskDataPersistence;
+    private FileDataPersistence<TigerTask> tigerTaskDataPersistence;
 
     public void run() {
         ThreadPool.getThreadPoolExecutor().execute(() -> {

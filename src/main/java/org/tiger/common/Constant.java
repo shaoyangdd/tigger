@@ -31,4 +31,5 @@ public interface Constant {
 
     String SHARDING_PARAMETER_KEY = "shardingParameters";
 
+    String LINE_SEPARATOR = System.lineSeparator();
 }

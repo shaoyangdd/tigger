@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static org.tiger.common.Constant.LINE_SEPARATOR;
+
 /**
  * 文件写
  *
@@ -34,8 +36,9 @@ public class TigerFileWriter {
     private void writeLine(File file, String string) {
         BufferedWriter bufferedWriter = null;
         try {
-            bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter = new BufferedWriter(new FileWriter(file, true));
             bufferedWriter.write(string);
+            bufferedWriter.write(LINE_SEPARATOR);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
