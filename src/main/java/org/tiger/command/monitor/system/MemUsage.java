@@ -1,10 +1,13 @@
 package org.tiger.command.monitor.system;
 
+import com.sun.management.OperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.common.datastruct.MemoryInfo;
+import org.tiger.common.util.SystemUtil;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -28,12 +31,46 @@ public class MemUsage implements ResourceUsage {
         return INSTANCE;
     }
 
+    public static MemoryInfo getByWindows() {
+        int kb = 1024 * 1024;
+        OperatingSystemMXBean osmxb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        // 操作系统
+        String osName = System.getProperty("os.name");
+        // 总的物理内存
+        long totalMemorySize = osmxb.getTotalPhysicalMemorySize() / kb;
+        // 剩余的物理内存
+        long freePhysicalMemorySize = osmxb.getFreePhysicalMemorySize() / kb;
+        // 已使用的物理内存
+        long usedMemory = (osmxb.getTotalPhysicalMemorySize() - osmxb
+                .getFreePhysicalMemorySize()) / kb;
+        log.info("osName:{},totalMemorySize:{}Mb,freePhysicalMemorySize:{}Mb,usedMemory:{}Mb", osName, totalMemorySize, freePhysicalMemorySize, usedMemory);
+        BigDecimal memUsage = new BigDecimal(usedMemory).divide(new BigDecimal(totalMemorySize)).setScale(BigDecimal.ROUND_HALF_UP, 2);
+        MemoryInfo memoryInfo = new MemoryInfo();
+        memoryInfo.setUsage(memUsage);
+        return memoryInfo;
+    }
+
+
     /**
      * 采集内存使用率
      *
      * @return MemUsage
      */
     public MemoryInfo get() {
+        log.info("开始收集memory使用率");
+        if (SystemUtil.isWindows()) {
+            return getByWindows();
+        } else if (SystemUtil.isLinux()) {
+            return getByLinux();
+        } else if (SystemUtil.isMacOs()) {
+            //TODO 后面支持
+            return null;
+        } else {
+            throw new RuntimeException("不支持的操作系统");
+        }
+    }
+
+    public MemoryInfo getByLinux() {
         log.info("开始收集memory使用率");
         BigDecimal memUsage = BigDecimal.ZERO;
         Process pro = null;

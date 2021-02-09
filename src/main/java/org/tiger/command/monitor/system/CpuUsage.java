@@ -3,6 +3,7 @@ package org.tiger.command.monitor.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.common.datastruct.CpuInfo;
+import org.tiger.common.util.SystemUtil;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -34,6 +35,20 @@ public class CpuUsage {
      * @return cpuInfo
      */
     public CpuInfo get() {
+        BigDecimal cpuUsage = null;
+        if (SystemUtil.isLinux()) {
+            cpuUsage = getLinuxCpuUsage();
+        } else if (SystemUtil.isWindows()) {
+            cpuUsage = WindowsCpuUtil.getCpuUsage();
+        } else if (SystemUtil.isMacOs()) {
+            //TODO 后面支持
+        }
+        CpuInfo cpuInfo = new CpuInfo();
+        cpuInfo.setCpuUse(cpuUsage);
+        return cpuInfo;
+    }
+
+    private BigDecimal getLinuxCpuUsage() {
         log.info("开始收集cpu使用率");
         BigDecimal cpuUsage = null;
         Process pro1, pro2;
@@ -94,8 +109,6 @@ public class CpuUsage {
             log.error("CpuUsage发生InstantiationException. " + e.getMessage());
             log.error(sw.toString());
         }
-        CpuInfo cpuInfo = new CpuInfo();
-        cpuInfo.setCpuUse(cpuUsage);
-        return cpuInfo;
+        return cpuUsage;
     }
 }

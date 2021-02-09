@@ -2,8 +2,9 @@ package org.tiger.command.monitor.system;
 
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.math.BigDecimal;
 
-public class Test {
+public class WindowsCpuUtil {
     private static final int CPUTIME = 500;
     private static final int PERCENT = 100;
     private static final int FAULTLENGTH = 10;
@@ -68,32 +69,39 @@ public class Test {
     }
 
     /**
-     * 由于String.subString对汉字处理存在问题（把一个汉字视为一个字节)，因此在 包含汉字的字符串时存在隐患，现调整如下：
+     * 由于String.subString对汉字处理存在问题（把一个汉字视为一个字节)，因此在包含汉字的字符串时存在隐患，现调整如下：
      *
-     * @param src 要截取的字符串
-     * @param start_idx 开始坐标（包括该坐标)
-     * @param end_idx 截止坐标（包括该坐标）
+     * @param src       要截取的字符串
+     * @param start_idx 开始坐标（包括该坐标)
+     * @param end_idx   截止坐标（包括该坐标）
      */
     private static String substring(String src, int start_idx, int end_idx) {
         byte[] b = src.getBytes();
-        String tgt = "";
+        StringBuilder tgt = new StringBuilder();
         for (int i = start_idx; i <= end_idx; i++) {
-            tgt += (char) b[i];
+            tgt.append((char) b[i]);
         }
-        return tgt;
+        return tgt.toString();
     }
 
-    public static void main(String[] args) throws Exception {
-        //CPU
-        String cmd = System.getenv("windir") + "\\system32\\wbem\\wmic.exe process get Caption,CommandLine,KernelModeTime,ReadOperationCount,ThreadCount,UserModeTime,WriteOperationCount";
-        //获取进程信息
-        long[] c0 = readCPU(Runtime.getRuntime().exec(cmd));
-        Thread.sleep(CPUTIME);
-        long[] c1 = readCPU(Runtime.getRuntime().exec(cmd));
-        if (c0 != null && c1 != null) {
-            long idleTime = c1[0] - c0[0];
-            long useTime = c1[1] - c0[1];
-            System.out.println("CPU使用率：" + Double.valueOf(PERCENT * useTime / (idleTime + useTime)).intValue() + "%");
+    public static BigDecimal getCpuUsage() {
+        BigDecimal cpuUsage = null;
+        try {
+            //CPU
+            String cmd = System.getenv("windir") + "\\system32\\wbem\\wmic.exe process get Caption,CommandLine,KernelModeTime,ReadOperationCount,ThreadCount,UserModeTime,WriteOperationCount";
+            //获取进程信息
+            long[] c0 = readCPU(Runtime.getRuntime().exec(cmd));
+            Thread.sleep(CPUTIME);
+            long[] c1 = readCPU(Runtime.getRuntime().exec(cmd));
+            if (c0 != null && c1 != null) {
+                long idleTime = c1[0] - c0[0];
+                long useTime = c1[1] - c0[1];
+                cpuUsage = new BigDecimal(Double.valueOf(PERCENT * useTime / (idleTime + useTime)));
+                System.out.println("CPU使用率：" + cpuUsage + "%");
+            }
+            return cpuUsage;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
