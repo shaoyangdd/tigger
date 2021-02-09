@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskFlow;
+import org.tiger.common.datastruct.TigerTaskResourceUse;
 import org.tiger.common.parameter.ParameterReaders;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.PackageUtil;
@@ -256,7 +257,9 @@ public class BeanFactory {
     private static void customBean() {
         DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence = new FileDataPersistence<>();
         DataPersistence<TigerTask> tigerTaskDataPersistence = new FileDataPersistence<>();
+        FileDataPersistence<TigerTaskResourceUse> systemMonitorFileDataPersistence = new FileDataPersistence<>();
         customBeanMap.put("tigerTaskFlowDataPersistence", tigerTaskFlowDataPersistence);
         customBeanMap.put("tigerTaskDataPersistence", tigerTaskDataPersistence);
+        customBeanMap.put("systemMonitorFileDataPersistence", systemMonitorFileDataPersistence);
     }
 }

@@ -9,6 +9,7 @@ import org.tiger.common.datastruct.TigerTaskExecute;
 import org.tiger.common.ioc.InjectCustomBean;
 import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
+import org.tiger.common.threadpool.ThreadPool;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.common.util.TigerUtil;
 import org.tiger.persistence.file.FileDataPersistence;
@@ -55,7 +56,7 @@ public class JvmMonitor implements Monitor {
                 if (event1 == null) {
                     if (event == Event.TASK_START) {
                         map.put(executeId, event);
-                        new Thread(() -> {
+                        ThreadPool.getThreadPoolExecutor().execute(() -> {
                             logger.info("开始监控JVM,executeId:{}", executeId);
                             //还要考虑超时报警
                             while (map.get(executeId) == Event.TASK_START) {
@@ -65,7 +66,7 @@ public class JvmMonitor implements Monitor {
                                 dataPersistence.insert(get());
                             }
                             logger.info("JVM监控结束:{}", executeId);
-                        }).start();
+                        });
                     }
                 } else {
                     if (event1 == Event.TASK_START && event == Event.TASK_COMPLETE) {
