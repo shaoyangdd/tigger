@@ -1,4 +1,4 @@
-package org.tiger.command.monitor.system;
+package org.tiger.common.util;
 
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -96,7 +96,8 @@ public class WindowsCpuUtil {
             if (c0 != null && c1 != null) {
                 long idleTime = c1[0] - c0[0];
                 long useTime = c1[1] - c0[1];
-                cpuUsage = new BigDecimal(Double.valueOf(PERCENT * useTime / (idleTime + useTime)));
+                cpuUsage = new BigDecimal(PERCENT).multiply(new BigDecimal(useTime).divide(
+                        new BigDecimal(idleTime).add(new BigDecimal(useTime)), BigDecimal.ROUND_HALF_UP, 2));
                 System.out.println("CPU使用率：" + cpuUsage + "%");
             }
             return cpuUsage;

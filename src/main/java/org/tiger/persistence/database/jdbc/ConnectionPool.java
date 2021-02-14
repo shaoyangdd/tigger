@@ -3,7 +3,6 @@ package org.tiger.persistence.database.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tiger.common.ioc.AfterInstance;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.StringUtil;
@@ -47,7 +46,7 @@ public class ConnectionPool {
     /**
      * 初始化连接池
      */
-    @AfterInstance
+    //@AfterInstance
     public void init() {
         String user = Parameters.get("database.username");
         String password = Parameters.get("database.password");

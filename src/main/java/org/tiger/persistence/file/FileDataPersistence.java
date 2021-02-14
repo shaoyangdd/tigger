@@ -31,7 +31,7 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
 
     public int insert(T record) {
         record.setId(idGenerator.getNextSeq());
-        tigerFileWriter.write(record);
+        tigerFileWriter.write(record, true);
         return record.getId().intValue();
     }
 

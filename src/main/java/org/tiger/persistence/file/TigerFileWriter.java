@@ -25,18 +25,22 @@ public class TigerFileWriter {
     @Inject
     private RecordOperator recordOperator;
 
+    public void writeOneLineNoAppend(File file, String record) {
+        writeLine(file, record, false);
+    }
+
     public void writeOneLine(File file, String record) {
-        writeLine(file, record);
+        writeLine(file, record, true);
     }
 
-    public void write(Record record) {
-        writeLine(filePathResolver.getFile(record), recordOperator.toString(record));
+    public void write(Record record, boolean append) {
+        writeLine(filePathResolver.getFile(record), recordOperator.toString(record), append);
     }
 
-    private void writeLine(File file, String string) {
+    private void writeLine(File file, String string, boolean append) {
         BufferedWriter bufferedWriter = null;
         try {
-            bufferedWriter = new BufferedWriter(new FileWriter(file, true));
+            bufferedWriter = new BufferedWriter(new FileWriter(file, append));
             bufferedWriter.write(string);
             bufferedWriter.write(LINE_SEPARATOR);
         } catch (Exception e) {

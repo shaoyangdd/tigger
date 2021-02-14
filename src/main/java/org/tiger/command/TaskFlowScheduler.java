@@ -3,7 +3,6 @@ package org.tiger.command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.command.monitor.EventListener;
-import org.tiger.common.ObjectFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.LogicTaskNode;
 import org.tiger.common.datastruct.TaskExecuteStatus;
@@ -32,6 +31,9 @@ public class TaskFlowScheduler {
     private Logger logger = LoggerFactory.getLogger(TaskFlowScheduler.class.getSimpleName());
 
     @Inject
+    private TigerTaskExecutor tigerTaskExecutor;
+
+    @Inject
     private EventListener eventListener;
 
     /**
@@ -44,6 +46,7 @@ public class TaskFlowScheduler {
         List<LogicTaskNode> nodeListForExecute = head.getNextTigerTaskList();
         if (nodeListForExecute == null || nodeListForExecute.size() == 0) {
             //没有下一个节点时结束
+            logger.info("没有下一个（批）节点,任务执行结束。");
             return;
         }
         //0. 可执行任务和等待任务(需要等待依赖的前面任务完成的任务)拆分
@@ -116,7 +119,7 @@ public class TaskFlowScheduler {
      * @param tigerTask 任务
      */
     private void execute(TigerTask tigerTask) {
-        ObjectFactory.instance().getTigerExecutor().executeTask(tigerTask);
+        tigerTaskExecutor.executeTask(tigerTask);
     }
 
     /**
@@ -128,7 +131,7 @@ public class TaskFlowScheduler {
     private boolean hasExecutingTask(List<TigerTask> previousList) {
         for (TigerTask tigerTask : previousList) {
             List<TaskExecuteStatus> list1 = MemoryShareDataRegion.taskExecuteStatus.stream()
-                    .filter(taskExecuteStatus -> taskExecuteStatus.getTigerTask().getId() == tigerTask.getId())
+                    .filter(taskExecuteStatus -> taskExecuteStatus.getTigerTask().getId().equals(tigerTask.getId()))
                     .collect(Collectors.toList());
             for (TaskExecuteStatus taskExecuteStatus : list1) {
                 if (taskExecuteStatus.getTaskStatus() != TaskStatus.COMPLETE) {

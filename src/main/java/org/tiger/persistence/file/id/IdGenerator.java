@@ -38,14 +38,14 @@ public class IdGenerator {
 
     synchronized public long getNextSeq() {
         long seq = atomicLong.getAndIncrement();
-        tigerFileWriter.writeOneLine(file, String.valueOf(seq));
+        tigerFileWriter.writeOneLineNoAppend(file, String.valueOf(seq));
         return seq;
     }
 
     @AfterInstance
     public void init() {
         String seq = tigerFileReader.readOneLine(new File(idPath));
-        atomicLong = new AtomicLong(Integer.parseInt(seq));
+        atomicLong = new AtomicLong(seq == null ? 0 : Integer.parseInt(seq));
         file = new File(idPath);
         if (!file.exists()) {
             throw new RuntimeException("序号文件不存在:" + idPath);

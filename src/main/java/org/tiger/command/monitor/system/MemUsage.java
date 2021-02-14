@@ -32,6 +32,7 @@ public class MemUsage implements ResourceUsage {
     }
 
     public static MemoryInfo getByWindows() {
+        log.info("getByWindows...");
         int kb = 1024 * 1024;
         OperatingSystemMXBean osmxb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         // 操作系统
@@ -44,7 +45,7 @@ public class MemUsage implements ResourceUsage {
         long usedMemory = (osmxb.getTotalPhysicalMemorySize() - osmxb
                 .getFreePhysicalMemorySize()) / kb;
         log.info("osName:{},totalMemorySize:{}Mb,freePhysicalMemorySize:{}Mb,usedMemory:{}Mb", osName, totalMemorySize, freePhysicalMemorySize, usedMemory);
-        BigDecimal memUsage = new BigDecimal(usedMemory).divide(new BigDecimal(totalMemorySize)).setScale(BigDecimal.ROUND_HALF_UP, 2);
+        BigDecimal memUsage = new BigDecimal(usedMemory).divide(new BigDecimal(totalMemorySize), 2, BigDecimal.ROUND_HALF_UP);
         MemoryInfo memoryInfo = new MemoryInfo();
         memoryInfo.setUsage(memUsage);
         return memoryInfo;
@@ -71,7 +72,7 @@ public class MemUsage implements ResourceUsage {
     }
 
     public MemoryInfo getByLinux() {
-        log.info("开始收集memory使用率");
+        log.info("开始收集memory使用率,linux");
         BigDecimal memUsage = BigDecimal.ZERO;
         Process pro = null;
         Runtime r = Runtime.getRuntime();

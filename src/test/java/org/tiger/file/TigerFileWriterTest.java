@@ -33,6 +33,6 @@ public class TigerFileWriterTest {
     public void write() {
         TestWriterRecord testRecord = new TestWriterRecord();
         testRecord.setName("test write!!");
-        tigerFileWriter.write(testRecord);
+        tigerFileWriter.write(testRecord, true);
     }
 }
