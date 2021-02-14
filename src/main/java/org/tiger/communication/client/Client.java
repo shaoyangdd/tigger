@@ -23,13 +23,13 @@ public class Client {
                     .group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ProtobufClientInitializer());
-            System.out.println("启动IM线程,连接IP:{},连接端口:{}" + host + ":" + port);
+            System.out.println("连接IP:{},连接端口:{}" + host + ":" + port);
             channel = bootstrap.connect(host, port).sync().channel();
             channel.closeFuture().sync();
         } catch (Exception e) {
             logger.info("连接" + host + ":" + port + "失败");
         } finally {
-            logger.info("停止IM线程失败");
+            logger.info("IP{}没有tiger运行", host);
             group.shutdownGracefully();
         }
     }

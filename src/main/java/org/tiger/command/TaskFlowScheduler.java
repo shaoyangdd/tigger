@@ -1,5 +1,6 @@
 package org.tiger.command;
 
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.command.monitor.EventListener;
@@ -36,12 +37,17 @@ public class TaskFlowScheduler {
     @Inject
     private EventListener eventListener;
 
+    @Inject
+    private DefaultTaskSplitStrategy defaultTaskSplitStrategy;
+
     /**
      * 遍历并执行任务
      *
      * @param head 任务头节点
      */
     public void iterateAndExecute(LogicTaskNode head) {
+        String taskName = head.getCurrentTigerTask() == null ? null : head.getCurrentTigerTask().getTaskName();
+        logger.info("遍历并执行{}后面的任务", taskName);
         //LOOP 任务遍历
         List<LogicTaskNode> nodeListForExecute = head.getNextTigerTaskList();
         if (nodeListForExecute == null || nodeListForExecute.size() == 0) {
@@ -57,11 +63,13 @@ public class TaskFlowScheduler {
             List<TigerTask> previousList = logicTaskNode.getPreviousTigerTaskList()
                     .stream().map(LogicTaskNode::getCurrentTigerTask)
                     .collect(Collectors.toList());
-            if (hasExecutingTask(previousList)) {
+            if (hasExecutingTask(previousList)) {// TODO 有个BUG，
                 //等待任务
+                logger.info("此任务前面有正在执行的任务，进入等待队列..{}", logicTaskNode.getCurrentTigerTask().getTaskName());
                 waitingTaskList.add(logicTaskNode);
             } else {
                 //可执行任务
+                logger.info("此任务可执行:{}", logicTaskNode.getCurrentTigerTask().getTaskName());
                 tigerTaskList.add(logicTaskNode.getCurrentTigerTask());
             }
         }
@@ -82,17 +90,24 @@ public class TaskFlowScheduler {
                 //TODO 创建 TigerTaskExecute实例入库
                 Map<String, Object> param = TigerUtil.buildTigerTaskExecutionParamMap(null, tigerTask);
                 eventListener.listen(Event.TASK_START, param);
+                logger.info("开始执行{}任务", tigerTask.getTaskName());
                 execute(tigerTask);
+                logger.info("执行{}任务结束", tigerTask.getTaskName());
                 //通知其它IP本任务运行结束
                 eventListener.listen(Event.TASK_COMPLETE, param);
+                synchronized (this) {
+                    myTaskList.remove(tigerTask);
+                }
             });
         }
         //等上面的都执行完
-        while (!(tigerTaskList.size() == 0 && waitingTaskList.size() == 0)) {
+        while (!(myTaskList.size() == 0 && waitingTaskList.size() == 0)) {
             //自旋等上面任务完成
+            logger.info("等待以上任务执行完成...myTaskList{},waitingTaskList.size{}", JSON.toJSONString(myTaskList), waitingTaskList.size());
             ThreadUtil.sleep(1000);
         }
-        //3. 递归并发遍历去执行下一批节点
+        logger.info("执行{}后面的任务结束,递归并发遍历去执行下一批节点", taskName);
+        //3. 递归并发遍历去执行下一批节点，一批的话是多个，肯定是并行
         for (LogicTaskNode logicTaskNode : nodeListForExecute) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
                 iterateAndExecute(logicTaskNode);
@@ -108,8 +123,7 @@ public class TaskFlowScheduler {
      */
     private List<TigerTask> splitTask(List<TigerTask> tigerTaskList) {
         //TODO 任务拆分策略提供默认的，也可以自定义
-        TestTaskSplitStrategy testTaskSplitStrategy = new TestTaskSplitStrategy();
-        Map<String, List<TigerTask>> map = testTaskSplitStrategy.splitTaskFlow(tigerTaskList);
+        Map<String, List<TigerTask>> map = defaultTaskSplitStrategy.splitTaskFlow(tigerTaskList);
         return map.get(MemoryShareDataRegion.localIp);
     }
 
@@ -151,10 +165,13 @@ public class TaskFlowScheduler {
         for (LogicTaskNode logicTaskNode : waitingTaskList) {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
                 while (true) {
+                    logger.info("监控未完成的任务{}", logicTaskNode.getCurrentTigerTask().getTaskName());
+                    ThreadUtil.sleep(1000);
                     List<TigerTask> list = logicTaskNode.getPreviousTigerTaskList()
                             .stream().map(LogicTaskNode::getCurrentTigerTask).collect(Collectors.toList());
                     if (!hasExecutingTask(list)) {
                         waitingTaskList.remove(logicTaskNode);
+                        logger.info("监控未完成的任务{}已完成", logicTaskNode.getCurrentTigerTask().getTaskName());
                         break;
                     }
                 }

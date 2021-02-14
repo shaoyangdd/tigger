@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
-import org.tiger.communication.client.Client;
 
 /**
  * 服务器启动类
@@ -21,7 +20,7 @@ import org.tiger.communication.client.Client;
 @SingletonBean
 public class Server {
 
-    private Logger logger = LoggerFactory.getLogger(Client.class.getName());
+    private Logger logger = LoggerFactory.getLogger(Server.class);
 
     @InjectParameter
     private String port;

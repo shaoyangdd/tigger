@@ -3,6 +3,7 @@ package org.tiger.common.ioc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.datastruct.TigerTaskExecute;
 import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.datastruct.TigerTaskResourceUse;
 import org.tiger.common.parameter.ParameterReaders;
@@ -43,9 +44,18 @@ public class BeanFactory {
     private static ParameterReaders parameterReaders = new ParameterReaders();
 
     /**
+     * 是否已注入bean，防止重复调用注入
+     */
+    private static volatile boolean injectFlag = false;
+
+    /**
      * 自动实例化所有的本包下的bean
      */
-    public static void autowireBean() {
+    public synchronized static void autowireBean() {
+        //注入完成后不再注入
+        if (injectFlag) {
+            return;
+        }
         long start = System.currentTimeMillis();
         //加载参数
         parameterReaders.loadParameters();
@@ -100,6 +110,7 @@ public class BeanFactory {
             }
         });
         logger.info("Ioc容器初始化bean完成, 耗时:" + (System.currentTimeMillis() - start) + "ms");
+        injectFlag = true;
     }
 
     public static <T> T getBean(Class<T> tClass) {
@@ -258,8 +269,10 @@ public class BeanFactory {
         DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence = new FileDataPersistence<>();
         DataPersistence<TigerTask> tigerTaskDataPersistence = new FileDataPersistence<>();
         FileDataPersistence<TigerTaskResourceUse> systemMonitorFileDataPersistence = new FileDataPersistence<>();
+        FileDataPersistence<TigerTaskExecute> tigerTaskExecuteDataPersistence = new FileDataPersistence<>();
         customBeanMap.put("tigerTaskFlowDataPersistence", tigerTaskFlowDataPersistence);
         customBeanMap.put("tigerTaskDataPersistence", tigerTaskDataPersistence);
         customBeanMap.put("systemMonitorFileDataPersistence", systemMonitorFileDataPersistence);
+        customBeanMap.put("tigerTaskExecuteDataPersistence", tigerTaskExecuteDataPersistence);
     }
 }

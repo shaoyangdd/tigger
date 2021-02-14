@@ -10,6 +10,7 @@ import org.tiger.common.datastruct.LogicTaskNode;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.datastruct.TigerTaskFlow;
 import org.tiger.common.ioc.BeanFactory;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.InjectCustomBean;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.threadpool.ThreadPool;
@@ -48,6 +49,9 @@ public class Starter {
     @InjectCustomBean
     private FileDataPersistence<TigerTask> tigerTaskDataPersistence;
 
+    @Inject
+    private Server server;
+
     public void run() {
         ThreadPool.getThreadPoolExecutor().execute(() -> {
             logger.info("tiger 启动开始...");
@@ -58,7 +62,7 @@ public class Starter {
             //1. 启动Server
             logger.info("启动Server开始...");
             ThreadPool.getThreadPoolExecutor().execute(() -> {
-                new Server().run();
+                server.run();
             });
             logger.info("启动Server结束");
 
@@ -70,7 +74,8 @@ public class Starter {
             //3. 获取有Tiger运行的IP
             logger.info("获取有Tiger运行的IP开始...");
             MemoryShareDataRegion.tigerRunningIpChannel.putAll(getTigerRunningIp());
-            logger.info("获取有Tiger运行的IP结束" + JSON.toJSONString(MemoryShareDataRegion.tigerRunningIpChannel));
+            MemoryShareDataRegion.ipOrder.add(MemoryShareDataRegion.localIp);
+            logger.info("获取有Tiger运行的IP结束" + JSON.toJSONString(MemoryShareDataRegion.tigerRunningIpChannel.keySet()));
 
             //4. 上线通知
             logger.info("上线通知开始...");
@@ -143,7 +148,7 @@ public class Starter {
     /**
      * 获取有Tiger运行的IP\channel映射
      *
-     * @return ip
+     * @return Map<ip, Channel>
      */
     private static Map<String, Channel> getTigerRunningIp() {
         //暂时使用parallelStream多线程提高效率，如果执行机规模庞大时,选择

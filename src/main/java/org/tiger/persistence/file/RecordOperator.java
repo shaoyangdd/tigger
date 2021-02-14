@@ -2,6 +2,7 @@ package org.tiger.persistence.file;
 
 import com.alibaba.fastjson.JSON;
 import org.tiger.common.ioc.SingletonBean;
+import org.tiger.common.util.StringUtil;
 
 /**
  * 记录操作器
@@ -46,8 +47,8 @@ public class RecordOperator {
 //        } catch (Exception e) {
 //            throw new RuntimeException(e);
 //        }
-        //TODO 先不补齐长度了，后面再考虑更新时覆盖
-        return JSON.toJSONString(record);
+        //TODO 先临时补充到500个字符，后面根据字段名长度加字段长度来计算
+        return StringUtil.rightPadSpace(JSON.toJSONString(record), 500);
     }
 
     /**

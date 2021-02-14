@@ -80,7 +80,10 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
 
     @Override
     public int update(T record) {
-        //暂时没有更新，先不实现
+        List<T> list = findList(record);
+        for (T t : list) {
+            //TODO 记录中加一个索引字段，记录行的起始位置然后用随机写文件的方式来写文件
+        }
         return 0;
     }
 

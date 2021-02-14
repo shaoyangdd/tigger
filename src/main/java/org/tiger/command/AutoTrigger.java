@@ -22,7 +22,7 @@ public class AutoTrigger {
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity("trigger1", "group1")
                     .usingJobData("t1", "tv1")
-                    .withSchedule(cronSchedule("0 24 16 * * ? ")).build();
+                    .withSchedule(cronSchedule("0 59 22 * * ? ")).build();
             trigger.getJobDataMap().put("t2", "tv2");
 
             //创建一个job
