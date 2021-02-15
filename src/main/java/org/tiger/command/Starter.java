@@ -15,9 +15,9 @@ import org.tiger.common.ioc.InjectCustomBean;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.threadpool.ThreadPool;
 import org.tiger.common.util.CollectionUtil;
+import org.tiger.common.util.NetUtil;
 import org.tiger.common.util.ThreadUtil;
 import org.tiger.communication.client.Client;
-import org.tiger.communication.client.util.NetUtil;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
 import org.tiger.communication.server.Server;
 import org.tiger.persistence.database.jdbc.ConnectionPool;
@@ -159,6 +159,7 @@ public class Starter {
             ThreadPool.getThreadPoolExecutor().execute(() -> {
                 client.connect(ip, PORT);
             });
+            //TODO 比较LOW，后面改一下
             ThreadUtil.sleep(1000);
             Channel channel = client.getChannel();
             if (channel != null) {

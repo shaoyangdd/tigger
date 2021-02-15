@@ -30,7 +30,7 @@ public class AppTest {
         TigerConfiguration tigerConfiguration = ObjectFactory.instance().getTigerConfiguration();
         tigerConfiguration.configTaskExecutor(new SpringBatchTaskExecutor());
         starter.run();
-        ThreadUtil.sleep(1000 * 90);
+        ThreadUtil.sleep(1000 * 60 * 15);
         assertTrue(true);
     }
 }

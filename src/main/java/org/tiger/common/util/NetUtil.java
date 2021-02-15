@@ -1,4 +1,4 @@
-package org.tiger.communication.client.util;
+package org.tiger.common.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +9,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 网络操作工具类
+ *
+ * @author 康绍飞
+ * @date 2021-02-06
+ */
 public class NetUtil {
 
     private static Logger logger = LoggerFactory.getLogger(NetUtil.class.getName());
@@ -42,7 +48,7 @@ public class NetUtil {
                     if (count > 2) {
                         //有效IP
                         String[] str = inline.split(" {4}");
-                        list.add(str[0]);
+                        list.add(str[0].trim());
                     }
                 }
                 logger.info(inline);

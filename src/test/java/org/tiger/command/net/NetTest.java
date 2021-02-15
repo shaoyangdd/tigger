@@ -3,7 +3,7 @@ package org.tiger.command.net;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tiger.communication.client.util.NetUtil;
+import org.tiger.common.util.NetUtil;
 
 import java.util.List;
 

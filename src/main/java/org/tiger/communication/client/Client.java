@@ -7,9 +7,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tiger.common.ioc.SingletonBean;
 
-@SingletonBean
 public class Client {
 
     private Logger logger = LoggerFactory.getLogger(Client.class.getName());
@@ -23,10 +21,11 @@ public class Client {
                     .group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ProtobufClientInitializer());
-            System.out.println("连接IP:{},连接端口:{}" + host + ":" + port);
+            logger.info("连接IP:{},连接端口:{}", host, port);
             channel = bootstrap.connect(host, port).sync().channel();
             channel.closeFuture().sync();
         } catch (Exception e) {
+            e.printStackTrace();
             logger.info("连接" + host + ":" + port + "失败");
         } finally {
             logger.info("IP{}没有tiger运行", host);
