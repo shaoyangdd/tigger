@@ -25,7 +25,7 @@ public class TaskStartEventHandler implements EventHandler {
         TaskExecuteStatus taskExecuteStatus = new TaskExecuteStatus();
         taskExecuteStatus.setIp((String) parameter.get(IP));
         taskExecuteStatus.setTigerTask((TigerTask) parameter.get(TigerUtil.TIGER_TASK_PARAM_MAP_KEY));
-        taskExecuteStatus.setTaskStatus(TaskStatus.RUNNING);
+        taskExecuteStatus.setTaskStatus(TaskStatus.RUNNABLE);
         MemoryShareDataRegion.taskExecuteStatus.add(taskExecuteStatus);
     }
 }

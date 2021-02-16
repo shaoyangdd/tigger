@@ -5,9 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiger.command.Event;
 import org.tiger.common.cache.MemoryShareDataRegion;
+import org.tiger.common.datastruct.TigerTask;
+import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.util.TigerUtil;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
+import org.tiger.consensus.Consensus;
 
 import java.util.Map;
 
@@ -23,6 +26,9 @@ import static org.tiger.communication.server.MessageType.TASK_START;
 public class AppMonitor implements Monitor {
 
     private final Logger logger = LoggerFactory.getLogger(AppMonitor.class.getSimpleName());
+
+    @Inject
+    private Consensus consensus;
 
     /**
      * 监视
@@ -52,7 +58,7 @@ public class AppMonitor implements Monitor {
     }
 
     /**
-     * 任务流结束
+     * 任务流开始
      *
      * @param parameter 参数
      */
@@ -76,11 +82,11 @@ public class AppMonitor implements Monitor {
      * @param parameter 开始参数
      */
     private void taskStart(Map<String, ?> parameter) {
-        MemoryShareDataRegion.tigerRunningIpChannel.forEach((k, v) -> {
-            String message = JSON.toJSONString(parameter.get(TigerUtil.TIGER_TASK_PARAM_MAP_KEY));
-            logger.info("任务开始通知:" + v.remoteAddress().toString() + ", 消息:" + "");
-            TigerMessageEncoder.encode(TASK_START.getMsgType(), message);
-        });
+        TigerTask tigerTask = (TigerTask) parameter.get(TigerUtil.TIGER_TASK_PARAM_MAP_KEY);
+        //是否可以开始
+        if (!consensus.canStartTask(tigerTask)) {
+            throw new RuntimeException("任务无法开始:" + tigerTask.getTaskName());
+        }
     }
 
     /**
