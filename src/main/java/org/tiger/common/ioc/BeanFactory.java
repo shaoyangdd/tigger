@@ -2,23 +2,14 @@ package org.tiger.common.ioc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tiger.common.datastruct.TigerTask;
-import org.tiger.common.datastruct.TigerTaskExecute;
-import org.tiger.common.datastruct.TigerTaskFlow;
-import org.tiger.common.datastruct.TigerTaskResourceUse;
 import org.tiger.common.parameter.ParameterReaders;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.PackageUtil;
-import org.tiger.persistence.DataPersistence;
-import org.tiger.persistence.file.FileDataPersistence;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,6 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BeanFactory {
 
     private static Logger logger = LoggerFactory.getLogger(BeanFactory.class.getSimpleName());
+
+    /**
+     * 指定的扫描的包下的所有的类 key类名，value类对象
+     */
+    private static final Map<String, Class<?>> classMap = new ConcurrentHashMap<>();
 
     /**
      * bean容器
@@ -64,7 +60,7 @@ public class BeanFactory {
         if (annotation == null) {
             throw new RuntimeException("调用:autowireBean的类没有配置启动注解:@EnableIoc");
         }
-        //1. 扫描包下所有的bean List<Class> 不包含接口，枚举
+        //扫描包下所有的bean List<Class> 不包含接口，枚举
         logger.info("开始扫描包下的类...");
         String[] packages = annotation.scanPackages();
         Set<String> classNameSet = new HashSet<>();
@@ -73,15 +69,19 @@ public class BeanFactory {
             classNameSet.addAll(className);
         }
         for (String s : classNameSet) {
+            Class<?> clazz = loadClass(s);
+            if (clazz != null) {
+                classMap.put(s, clazz);
+            }
             logger.info("class Name:" + s);
         }
-        //2. 实例化所有bean //TODO 处理接口、抽象类
+        //实例化所有bean //TODO 处理接口、抽象类
         logger.info("实例化所有的bean...");
         //先实例化、注入用户自定义的bean
         customBean();
         //再实例化、注入加了注解的bean
         for (String s : classNameSet) {
-            Class<?> clazz = loadClass(s);
+            Class<?> clazz = classMap.get(s);
             if (clazz != null) {
                 Annotation[] annotations = clazz.getAnnotations();
                 if (hasAnnotation(annotations, SingletonBean.class)) {
@@ -90,12 +90,12 @@ public class BeanFactory {
                 }
             }
         }
-        //3. 注入依赖
+        //注入依赖
         logger.info("注入依赖...");
         beanMap.forEach((k, v) -> {
             inject(beanMap, k, v, 0);
         });
-        //4. 实例化之后操作,调用@AfterInstance注解的方法
+        //实例化之后操作,调用@AfterInstance注解的方法
         logger.info("调用@AfterInstance注解的方法...");
         beanMap.forEach((k, v) -> {
             Method[] methods = k.getMethods();
@@ -125,7 +125,7 @@ public class BeanFactory {
      * @return class
      */
     private static Class<?> loadClass(String className) {
-        //这个类特殊，不能加载
+        //TODO 这个类特殊，不能加载，后面实现排除功能
         if (className.contains("MessageProtobuf")) {
             return null;
         }
@@ -248,7 +248,7 @@ public class BeanFactory {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
             String className = stackTraceElement.getClassName();
-            Class clazz = loadClass(className);
+            Class<?> clazz = loadClass(className);
             if (clazz == null) {
                 continue;
             }
@@ -266,13 +266,15 @@ public class BeanFactory {
      * 自定义Bean
      */
     private static void customBean() {
-        DataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence = new FileDataPersistence<>();
-        DataPersistence<TigerTask> tigerTaskDataPersistence = new FileDataPersistence<>();
-        FileDataPersistence<TigerTaskResourceUse> systemMonitorFileDataPersistence = new FileDataPersistence<>();
-        FileDataPersistence<TigerTaskExecute> tigerTaskExecuteDataPersistence = new FileDataPersistence<>();
-        customBeanMap.put("tigerTaskFlowDataPersistence", tigerTaskFlowDataPersistence);
-        customBeanMap.put("tigerTaskDataPersistence", tigerTaskDataPersistence);
-        customBeanMap.put("systemMonitorFileDataPersistence", systemMonitorFileDataPersistence);
-        customBeanMap.put("tigerTaskExecuteDataPersistence", tigerTaskExecuteDataPersistence);
+        List<CustomBean> customBeans = new ArrayList<>();
+        classMap.forEach((k, v) -> {
+            if (v != CustomBean.class && CustomBean.class.isAssignableFrom(v)) {
+                customBeans.add((CustomBean) getInstanceByClass(v));
+            }
+        });
+        for (CustomBean customBean : customBeans) {
+            logger.info("加载{}自定义的bean", customBean.getClass().getSimpleName());
+            customBeanMap.putAll(customBean.custom());
+        }
     }
 }
