@@ -1,9 +1,6 @@
 package org.tiger.common.ioc;
 
-import org.tiger.common.datastruct.TigerTask;
-import org.tiger.common.datastruct.TigerTaskExecute;
-import org.tiger.common.datastruct.TigerTaskFlow;
-import org.tiger.common.datastruct.TigerTaskResourceUse;
+import org.tiger.common.datastruct.*;
 import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.file.FileDataPersistence;
 
@@ -30,10 +27,12 @@ public class DefaultCustomBean implements CustomBean {
         DataPersistence<TigerTask> tigerTaskDataPersistence = new FileDataPersistence<>();
         FileDataPersistence<TigerTaskResourceUse> systemMonitorFileDataPersistence = new FileDataPersistence<>();
         FileDataPersistence<TigerTaskExecute> tigerTaskExecuteDataPersistence = new FileDataPersistence<>();
+        FileDataPersistence<TaskSchedule> taskScheduleFileDataPersistence = new FileDataPersistence<>();
         customBeanMap.put("tigerTaskFlowDataPersistence", tigerTaskFlowDataPersistence);
         customBeanMap.put("tigerTaskDataPersistence", tigerTaskDataPersistence);
         customBeanMap.put("systemMonitorFileDataPersistence", systemMonitorFileDataPersistence);
         customBeanMap.put("tigerTaskExecuteDataPersistence", tigerTaskExecuteDataPersistence);
+        customBeanMap.put("taskScheduleFileDataPersistence", taskScheduleFileDataPersistence);
         return customBeanMap;
     }
 }

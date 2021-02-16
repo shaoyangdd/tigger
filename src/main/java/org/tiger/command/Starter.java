@@ -13,7 +13,7 @@ import org.tiger.common.ioc.BeanFactory;
 import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.InjectCustomBean;
 import org.tiger.common.ioc.SingletonBean;
-import org.tiger.common.threadpool.ThreadPool;
+import org.tiger.common.thread.ThreadPool;
 import org.tiger.common.util.CollectionUtil;
 import org.tiger.common.util.NetUtil;
 import org.tiger.common.util.ThreadUtil;
@@ -42,6 +42,9 @@ import static org.tiger.communication.server.MessageType.ONLINE_NOTICE;
 public class Starter {
 
     private static Logger logger = LoggerFactory.getLogger(Starter.class.getSimpleName());
+
+    @Inject
+    private AutoTrigger autoTrigger;
 
     @InjectCustomBean
     private FileDataPersistence<TigerTaskFlow> tigerTaskFlowDataPersistence;
@@ -93,7 +96,7 @@ public class Starter {
             MemoryShareDataRegion.taskNode = this.buildLogicTaskNode();
 
             //8. 启动定时任务
-            AutoTrigger.run();
+            autoTrigger.run();
 
             logger.info("tiger 启动完成");
         });

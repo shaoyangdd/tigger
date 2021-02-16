@@ -1,4 +1,4 @@
-package org.tiger.common.threadpool;
+package org.tiger.common.thread;
 
 /**
  * 线程管理器

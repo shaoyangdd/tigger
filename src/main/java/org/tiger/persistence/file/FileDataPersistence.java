@@ -54,6 +54,10 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
     @SuppressWarnings("unchecked")
     public List<T> findList(T record) {
         List<String> list = tigerFileReader.readAndFindList(record, (line, paramMap) -> {
+            if (record == null) {
+                // 查全部
+                return true;
+            }
             Map<String, Object> lineMap = JSON.parseObject(line, Map.class);
             for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
                 String key = entry.getKey();

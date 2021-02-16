@@ -9,8 +9,8 @@ import org.tiger.common.datastruct.TaskStatus;
 import org.tiger.common.datastruct.TigerTask;
 import org.tiger.common.ioc.InjectParameter;
 import org.tiger.common.ioc.SingletonBean;
-import org.tiger.common.threadpool.ThreadManager;
-import org.tiger.common.threadpool.ThreadPool;
+import org.tiger.common.thread.ThreadManager;
+import org.tiger.common.thread.ThreadPool;
 import org.tiger.common.util.CollectionUtil;
 import org.tiger.communication.message.encoder.TigerMessageEncoder;
 

@@ -17,15 +17,18 @@ import org.tiger.common.util.ThreadUtil;
 @EnableIoc(scanPackages = "org.tiger")
 public class QuartzTest {
 
+    private AutoTrigger autoTrigger;
+
     @Before
     public void before() {
         BeanFactory.autowireBean();
+        autoTrigger = BeanFactory.getBean(AutoTrigger.class);
     }
 
     @Test
     public void test() {
         new Thread(() -> {
-            AutoTrigger.run();
+            autoTrigger.run();
         }).start();
         ThreadUtil.sleep(1000 * 60 * 2);
     }
