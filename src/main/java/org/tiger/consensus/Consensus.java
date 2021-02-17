@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import static org.tiger.communication.server.MessageType.TASK_START;
 
 /**
- * 共识
+ * 共识层
  *
  * @author kangshaofei
  * @date 2021-02-16

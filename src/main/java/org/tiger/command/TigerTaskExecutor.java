@@ -53,7 +53,7 @@ public class TigerTaskExecutor {
         try {
             //计算分片参数
             logger.info("计算分片参数");
-            ShardingParameter shardingParameter = calculator.getShardingParameter(tigerTask, MemoryShareDataRegion.standard);
+            ShardingParameter shardingParameter = calculator.getShardingParameter(tigerTask);
             JSONObject jsonObject = tigerTask.getTaskParameter() == null ? new JSONObject() : JSON.parseObject(tigerTask.getTaskParameter());
             jsonObject.put(SHARDING_PARAMETER_KEY, shardingParameter);
             logger.info("执行业务逻辑,分片参数:{}", JSON.toJSONString(shardingParameter));

@@ -42,9 +42,11 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
             Record fileRecord = recordOperator.stringToRecord(s, record.getClass());
             if (record.getId() != null && fileRecord.getId() != null) {
                 if (record.getId().equals(fileRecord.getId())) {
+                    //物理主键判断
                     return true;
                 }
             }
+            //再按业务主键判断
             return (fileRecord.getUnionKey() != null && fileRecord.getUnionKey().equals(record.getUnionKey()));
         });
         return (T) recordOperator.stringToRecord(line, record.getClass());

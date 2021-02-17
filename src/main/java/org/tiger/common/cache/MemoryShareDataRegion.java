@@ -2,7 +2,6 @@ package org.tiger.common.cache;
 
 import io.netty.channel.Channel;
 import org.tiger.common.datastruct.LogicTaskNode;
-import org.tiger.common.datastruct.Standard;
 import org.tiger.common.datastruct.TaskExecuteStatus;
 import org.tiger.persistence.database.jdbc.ConnectionPool;
 
@@ -70,9 +69,4 @@ public class MemoryShareDataRegion {
      * 运行状态
      */
     public static List<TaskExecuteStatus> taskExecuteStatus = new ArrayList<>();
-
-    /**
-     * 性能标准
-     */
-    public static Standard standard;
 }

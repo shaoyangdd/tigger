@@ -34,6 +34,9 @@ public class Calculator {
     @InjectCustomBean
     private DataPersistence<TigerTaskResourceUse> systemMonitorFileDataPersistence;
 
+    @InjectCustomBean
+    private DataPersistence<Standard> standardDataPersistence;
+
     @Inject
     private JdbcTemplate jdbcTemplate;
 
@@ -42,7 +45,10 @@ public class Calculator {
      *
      * @return 分片参数
      */
-    public ShardingParameter getShardingParameter(TigerTask tigerTask, Standard standard) {
+    public ShardingParameter getShardingParameter(TigerTask tigerTask) {
+        Standard searchCondition = new Standard();
+        searchCondition.setTaskId(tigerTask.getId());
+        Standard standard = standardDataPersistence.findOne(searchCondition);
         ShardingParameter shardingParameter = new ShardingParameter();
         shardingParameter.setThreadCount(calculateThreadSize(tigerTask, standard));
         List<Long> fromToId = getFromIdAndToId(tigerTask);
