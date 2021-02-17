@@ -78,6 +78,7 @@ public class Starter {
             logger.info("获取有Tiger运行的IP开始...");
             MemoryShareDataRegion.tigerRunningIpChannel.putAll(getTigerRunningIp());
             MemoryShareDataRegion.ipOrder.add(MemoryShareDataRegion.localIp);
+            MemoryShareDataRegion.ipOrder.addAll(MemoryShareDataRegion.tigerRunningIpChannel.keySet());
             logger.info("获取有Tiger运行的IP结束" + JSON.toJSONString(MemoryShareDataRegion.tigerRunningIpChannel.keySet()));
 
             //4. 上线通知

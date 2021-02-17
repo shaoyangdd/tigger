@@ -2,6 +2,8 @@ package org.tiger.command.machine_learning;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiger.common.cache.MemoryShareDataRegion;
 import org.tiger.common.datastruct.Standard;
 import org.tiger.common.datastruct.TigerTask;
@@ -31,6 +33,8 @@ import static org.tiger.common.Constant.THREAD_COUNT;
 @SingletonBean
 public class Calculator {
 
+    private Logger logger = LoggerFactory.getLogger(Calculator.class);
+
     @InjectCustomBean
     private DataPersistence<TigerTaskResourceUse> systemMonitorFileDataPersistence;
 
@@ -43,7 +47,7 @@ public class Calculator {
     /**
      * 根据CPU使用计算分片参数
      *
-     * @return 分片参数
+     * @return 分片参数（fromId,toId,线程数）
      */
     public ShardingParameter getShardingParameter(TigerTask tigerTask) {
         Standard searchCondition = new Standard();
@@ -62,62 +66,72 @@ public class Calculator {
      *
      * @param tigerTask 任务
      * @param standard  标准
-     * @return
+     * @return int
      */
+    @SuppressWarnings("unchecked")
     private int calculateThreadSize(TigerTask tigerTask, Standard standard) {
+        logger.info("开始计算线程数:{}, 标准:{}", tigerTask.getTaskName(), JSON.toJSONString(standard));
+        int threadTotal = 1;
         TigerTaskResourceUse tigerTaskResourceUse = new TigerTaskResourceUse();
-        tigerTaskResourceUse.searchParam().put("taskExecuteId", "");
+        tigerTaskResourceUse.searchParam().put("taskId", tigerTask.getId());
         List<TigerTaskResourceUse> list = systemMonitorFileDataPersistence.findList(tigerTaskResourceUse);
         if (CollectionUtil.isNotEmpty(list)) {
             BigDecimal avg;
             BigDecimal total = BigDecimal.ZERO;
-            list.forEach((use) -> {
-                total.add(use.getCpuUse());
-            });
-            avg = total.divide(new BigDecimal(list.size()));
-
+            for (TigerTaskResourceUse taskResourceUse : list) {
+                total = total.add(taskResourceUse.getCpuUse());
+            }
+            avg = total.divide(new BigDecimal(list.size()), BigDecimal.ROUND_HALF_UP, 2);
+            logger.info("任务:{}的平均CPU使用率为:{}", avg);
             //上次执行的线程数
             Map<String, Object> param = JSON.parseObject(tigerTask.getTaskParameter(), Map.class);
             int threadCount = (Integer) param.get(THREAD_COUNT);
             if (standard.getCpuUse().compareTo(avg) == 0) {
-                return threadCount;
+                threadTotal = threadCount;
             } else if (standard.getCpuUse().compareTo(avg) > 0) { //实例使用率小于标准
                 //需要增加的线程数 = (标准CPU使用率-平均使用率)/平均使用率 * 上次线程数
                 BigDecimal addThread = standard.getCpuUse().subtract(avg)
-                        .divide(avg).multiply(new BigDecimal(threadCount))
+                        .divide(avg, BigDecimal.ROUND_HALF_UP, 2)
+                        .multiply(new BigDecimal(threadCount))
                         .setScale(0, RoundingMode.HALF_UP);
-                return threadCount + addThread.intValue();
+                threadTotal = threadCount + addThread.intValue();
             } else {
                 //需要减少的线程数 = (平均使用率 - 标准CPU使用率) /平均使用率 * 上次线程数
                 BigDecimal reduceThread = avg.subtract(standard.getCpuUse())
-                        .divide(standard.getCpuUse()).multiply(new BigDecimal(threadCount))
+                        .divide(standard.getCpuUse(), BigDecimal.ROUND_HALF_UP, 2)
+                        .multiply(new BigDecimal(threadCount))
                         .setScale(0, RoundingMode.HALF_UP);
-                return threadCount - reduceThread.intValue();
+                threadTotal = threadCount - reduceThread.intValue();
             }
         }
-        return 1;
+        logger.info("计算出的{}线程数为:{}", tigerTask.getTaskName(), threadTotal);
+        return threadTotal;
     }
 
     /**
      * 获取FromId,ToId
      * 根据总数和总IP数来确定自己的那一个fromToId
      *
-     * @return
+     * @return List<Long>
      */
     private List<Long> getFromIdAndToId(TigerTask tigerTask) {
+        logger.info("开始获取:{}任务的fromId,toId", tigerTask.getTaskName());
         List<Long> fromToId = new ArrayList<>();
         JSONObject jsonObject = JSON.parseObject(tigerTask.getTaskParameter());
         if (jsonObject != null) {
             String countSql = jsonObject.getString(COUNT_SQL);
             List<String> ipOrder = MemoryShareDataRegion.ipOrder;
             long count;
-            if (ProcessMode.FILE_TO_API.readFromDB(tigerTask.getTaskProcessMode())) {
+            if (ProcessMode.readFromDB(tigerTask.getTaskProcessMode())) {
+                //从数据库获取总条数
                 count = jdbcTemplate.getCount(countSql);
+                logger.info("从数据库获取总条数,sql:{}, count:{}", countSql, count);
             } else {
                 //TODO 通过文件来获取要处理的总条数，这里先不支持，后面再说
                 throw new RuntimeException("当前只支持数据库模式");
             }
             if (count == 0) {
+                logger.info("从数据库获取总条数为0");
                 return fromToId;
             } else if (ipOrder.size() >= count) {
                 //一个IP只需要处理一条记录

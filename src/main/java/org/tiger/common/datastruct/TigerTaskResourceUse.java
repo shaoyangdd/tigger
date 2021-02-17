@@ -10,6 +10,8 @@ import java.math.BigDecimal;
  */
 public class TigerTaskResourceUse extends AbstractRecord {
 
+    private Long taskId;
+
     private String taskExecuteId;
 
     private BigDecimal cpuUse;
@@ -19,6 +21,14 @@ public class TigerTaskResourceUse extends AbstractRecord {
     private BigDecimal diskIoUse;
 
     private BigDecimal netUse;
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
 
     public String getTaskExecuteId() {
         return taskExecuteId;

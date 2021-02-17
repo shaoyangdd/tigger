@@ -60,7 +60,7 @@ public enum ProcessMode {
      * @param code 处理模式
      * @return
      */
-    public boolean readFromDB(String code) {
+    public static boolean readFromDB(String code) {
         ProcessMode processMode = null;
         for (ProcessMode value : ProcessMode.values()) {
             if (value.code.equals(code)) {

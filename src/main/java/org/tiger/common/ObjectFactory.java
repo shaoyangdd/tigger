@@ -2,9 +2,6 @@ package org.tiger.common;
 
 import org.tiger.command.Event;
 import org.tiger.command.TaskExecutor;
-import org.tiger.command.TaskFlowScheduler;
-import org.tiger.command.TigerTaskExecutor;
-import org.tiger.command.monitor.EventListener;
 import org.tiger.command.receive_event_handler.EventHandlerRegistry;
 import org.tiger.command.receive_event_handler.HeartbeatEventHandler;
 import org.tiger.command.receive_event_handler.TaskCompleteEventHandler;
@@ -12,17 +9,14 @@ import org.tiger.command.receive_event_handler.TaskStartEventHandler;
 import org.tiger.command.send_event_handler.HeartbeatSendEventHandler;
 import org.tiger.common.config.TigerConfiguration;
 import org.tiger.communication.client.Client;
-import org.tiger.persistence.DataPersistence;
 
 /**
- * 对象工厂,为了代码轻量，不使用任何IOC框架
+ * 对象工厂
  *
  * @author kangshaofei
  * @date 2020-01-16
  */
 public class ObjectFactory {
-
-    private TaskFlowScheduler taskFlowScheduler;
 
     private TaskExecutor taskExecutor;
 
@@ -30,13 +24,7 @@ public class ObjectFactory {
 
     private TigerConfiguration tigerConfiguration;
 
-    private TigerTaskExecutor tigerTaskExecutor;
-
-    private EventListener eventListener;
-
     private EventHandlerRegistry eventHandlerRegistry;
-
-    private DataPersistence dataPersistence;
 
     private final Object lock = new Object();
 
@@ -64,17 +52,6 @@ public class ObjectFactory {
             }
         }
         return tigerConfiguration;
-    }
-
-    public TigerTaskExecutor getTigerExecutor() {
-        if (tigerTaskExecutor == null) {
-            synchronized (lock) {
-                if (tigerTaskExecutor == null) {
-                    tigerTaskExecutor = new TigerTaskExecutor();
-                }
-            }
-        }
-        return tigerTaskExecutor;
     }
 
     public TaskExecutor setTaskExecutor(TaskExecutor taskExecutor) {
