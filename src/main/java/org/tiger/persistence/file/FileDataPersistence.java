@@ -71,7 +71,7 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
                     if (Arrays.asList(values).contains(value)) {
                         return true;
                     }
-                } else if (value.equals(recordValue)) {
+                } else if (value != null && String.valueOf(value).equals(String.valueOf(recordValue))) {
                     return true;
                 }
             }

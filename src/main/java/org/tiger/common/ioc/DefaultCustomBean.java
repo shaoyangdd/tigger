@@ -33,6 +33,8 @@ public class DefaultCustomBean implements CustomBean {
         customBeanMap.put("systemMonitorFileDataPersistence", systemMonitorFileDataPersistence);
         customBeanMap.put("tigerTaskExecuteDataPersistence", tigerTaskExecuteDataPersistence);
         customBeanMap.put("taskScheduleFileDataPersistence", taskScheduleFileDataPersistence);
+        DataPersistence<Standard> standardDataPersistence = new FileDataPersistence<>();
+        customBeanMap.put("standardDataPersistence", standardDataPersistence);
         return customBeanMap;
     }
 }

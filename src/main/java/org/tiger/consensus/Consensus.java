@@ -89,4 +89,11 @@ public class Consensus {
         }
         return true;
     }
+
+    /**
+     * 统一所有机器的时间
+     */
+    public void time() {
+        //TODO
+    }
 }

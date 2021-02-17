@@ -3,6 +3,8 @@ package org.tiger.persistence.database.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tiger.common.cache.MemoryShareDataRegion;
+import org.tiger.common.ioc.AfterInstance;
 import org.tiger.common.ioc.SingletonBean;
 import org.tiger.common.parameter.Parameters;
 import org.tiger.common.util.StringUtil;
@@ -46,7 +48,7 @@ public class ConnectionPool {
     /**
      * 初始化连接池
      */
-    //@AfterInstance
+    @AfterInstance
     public void init() {
         String user = Parameters.get("database.username");
         String password = Parameters.get("database.password");
@@ -67,6 +69,7 @@ public class ConnectionPool {
         } else {
             logger.info("没有数据库连接配置，不需要初始化");
         }
+        MemoryShareDataRegion.connectionPool = this;
     }
 
     /**

@@ -181,6 +181,9 @@ public class BeanFactory {
                     logger.info("注入InjectCustomBean:{}", field.getName());
                     //注入用户自定义的bean
                     Object fieldValue = customBeanMap.get(field.getName()) != null ? customBeanMap.get(field.getName()) : beanMap.get(field.getType());
+                    if (fieldValue == null) {
+                        throw new RuntimeException("用户自定义bean为空:" + field.getName() + ":" + clazz.getName());
+                    }
                     setValue(field, obj, fieldValue);
                     inject(beanMap, fieldValue.getClass(), fieldValue, ++count);
                 }

@@ -82,10 +82,10 @@ public class Calculator {
                 total = total.add(taskResourceUse.getCpuUse());
             }
             avg = total.divide(new BigDecimal(list.size()), BigDecimal.ROUND_HALF_UP, 2);
-            logger.info("任务:{}的平均CPU使用率为:{}", avg);
+            logger.info("任务:{}的平均CPU使用率为:{}", tigerTask.getTaskName(), avg);
             //上次执行的线程数
             Map<String, Object> param = JSON.parseObject(tigerTask.getTaskParameter(), Map.class);
-            int threadCount = (Integer) param.get(THREAD_COUNT);
+            int threadCount = param.get(THREAD_COUNT) == null ? 1 : (Integer) param.get(THREAD_COUNT);
             if (standard.getCpuUse().compareTo(avg) == 0) {
                 threadTotal = threadCount;
             } else if (standard.getCpuUse().compareTo(avg) > 0) { //实例使用率小于标准
@@ -95,6 +95,7 @@ public class Calculator {
                         .multiply(new BigDecimal(threadCount))
                         .setScale(0, RoundingMode.HALF_UP);
                 threadTotal = threadCount + addThread.intValue();
+                logger.info("需要增加的线程数:{}", threadTotal);
             } else {
                 //需要减少的线程数 = (平均使用率 - 标准CPU使用率) /平均使用率 * 上次线程数
                 BigDecimal reduceThread = avg.subtract(standard.getCpuUse())
@@ -102,6 +103,7 @@ public class Calculator {
                         .multiply(new BigDecimal(threadCount))
                         .setScale(0, RoundingMode.HALF_UP);
                 threadTotal = threadCount - reduceThread.intValue();
+                logger.info("需要减少的线程数:{}", threadTotal);
             }
         }
         logger.info("计算出的{}线程数为:{}", tigerTask.getTaskName(), threadTotal);
@@ -135,6 +137,7 @@ public class Calculator {
                 return fromToId;
             } else if (ipOrder.size() >= count) {
                 //一个IP只需要处理一条记录
+                logger.info("一个IP只需要处理一条记录,ipOrder:{},count:{},localIp:{}", JSON.toJSONString(ipOrder), count, MemoryShareDataRegion.localIp);
                 long start = 0;
                 List<Long> myFromToId = null;
                 for (String ip : ipOrder) {
@@ -152,6 +155,7 @@ public class Calculator {
                     return myFromToId;
                 }
             } else {
+                logger.info("一个IP处理多条记录,ipOrder:{},count:{},localIp:{}", JSON.toJSONString(ipOrder), count, MemoryShareDataRegion.localIp);
                 //一个IP处理多条记录
                 long avg = count / ipOrder.size();
                 long left = count % ipOrder.size();

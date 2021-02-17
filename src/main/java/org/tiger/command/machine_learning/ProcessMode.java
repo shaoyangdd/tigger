@@ -50,6 +50,10 @@ public enum ProcessMode {
 
     private String code;
 
+    public String getCode() {
+        return code;
+    }
+
     ProcessMode(String code) {
         this.code = code;
     }
