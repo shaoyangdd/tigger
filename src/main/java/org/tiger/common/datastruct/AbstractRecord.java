@@ -8,6 +8,11 @@ import java.util.Map;
 public abstract class AbstractRecord implements Record {
 
     /**
+     * 设置记录在文件中的起始位置
+     */
+    private long startIndex;
+
+    /**
      * 物理主键
      */
     private Long id;
@@ -35,5 +40,19 @@ public abstract class AbstractRecord implements Record {
 
     public void setSearchParam(Map<String, Object> searchParam) {
         this.searchParam = searchParam;
+    }
+
+    public long getStartIndex() {
+        return startIndex;
+    }
+
+    @Override
+    public void setStartIndex(long startIndex) {
+        this.startIndex = startIndex;
+    }
+
+    public int getRecordLength() {
+        //TODO 偷个懒，先定500个字节,后面根据字段上的注解里的长度计算出来
+        return 500;
     }
 }

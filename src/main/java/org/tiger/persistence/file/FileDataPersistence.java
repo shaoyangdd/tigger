@@ -3,6 +3,7 @@ package org.tiger.persistence.file;
 import com.alibaba.fastjson.JSON;
 import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
+import org.tiger.common.util.ObjectUtil;
 import org.tiger.persistence.DataPersistence;
 import org.tiger.persistence.file.id.IdGenerator;
 
@@ -87,8 +88,11 @@ public class FileDataPersistence<T extends Record> implements DataPersistence<T>
     @Override
     public int update(T record) {
         List<T> list = findList(record);
-        for (T t : list) {
-            //TODO 记录中加一个索引字段，记录行的起始位置然后用随机写文件的方式来写文件
+        for (T target : list) {
+            if (target.getId().equals(record.getId()) || target.getUnionKey().equals(record.getUnionKey())) {
+                ObjectUtil.copyNotNullField(record, target);
+            }
+            tigerFileWriter.writeByStartIndex(target);
         }
         return 0;
     }

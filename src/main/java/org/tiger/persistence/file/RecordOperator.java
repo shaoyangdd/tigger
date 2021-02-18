@@ -47,7 +47,7 @@ public class RecordOperator {
 //        } catch (Exception e) {
 //            throw new RuntimeException(e);
 //        }
-        //TODO 先临时补充到500个字符，后面根据字段名长度加字段长度来计算
+        //TODO 先临时补充到500个字符，后面根据字段名长度加字段长度来计算，还得考虑汉字编码问题
         return StringUtil.rightPadSpace(JSON.toJSONString(record), 500);
     }
 

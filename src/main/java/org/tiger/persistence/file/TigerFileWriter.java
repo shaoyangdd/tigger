@@ -3,10 +3,7 @@ package org.tiger.persistence.file;
 import org.tiger.common.ioc.Inject;
 import org.tiger.common.ioc.SingletonBean;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 import static org.tiger.common.Constant.LINE_SEPARATOR;
 
@@ -33,8 +30,24 @@ public class TigerFileWriter {
         writeLine(file, record, true);
     }
 
+    public void writeByStartIndex(Record record) {
+        File file = filePathResolver.getFile(record);
+        RandomAccessFile raf;
+        try {
+            raf = new RandomAccessFile(file, "rw");
+            //将记录指针移动到文件最后
+            raf.seek(raf.length());
+            raf.write((recordOperator.toString(record) + LINE_SEPARATOR).getBytes());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void write(Record record, boolean append) {
-        writeLine(filePathResolver.getFile(record), recordOperator.toString(record), append);
+        File file = filePathResolver.getFile(record);
+        //固定长度，所以除一下就行
+        record.setStartIndex(file.length() / (record.recordLength() + LINE_SEPARATOR.length()));
+        writeLine(file, recordOperator.toString(record), append);
     }
 
     private void writeLine(File file, String string, boolean append) {

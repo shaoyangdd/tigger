@@ -12,6 +12,13 @@ import java.util.Map;
 public interface Record {
 
     /**
+     * 设置记录在文件中的起始位置
+     *
+     * @param index 起始位置
+     */
+    void setStartIndex(long index);
+
+    /**
      * 设置物理主键
      *
      * @param id 主键
@@ -45,4 +52,11 @@ public interface Record {
      * @return map
      */
     Map<String, Object> searchParam();
+
+    /**
+     * 记录的长度，固定长度
+     *
+     * @return int 长度，多少个字节
+     */
+    int recordLength();
 }
