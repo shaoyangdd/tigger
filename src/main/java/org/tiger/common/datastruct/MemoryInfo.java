@@ -27,4 +27,9 @@ public class MemoryInfo extends AbstractRecord {
     public String getUnionKey() {
         return null;
     }
+
+    @Override
+    public int recordLength() {
+        return 500;
+    }
 }

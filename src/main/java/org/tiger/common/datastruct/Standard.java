@@ -107,4 +107,9 @@ public class Standard extends AbstractRecord {
     public String getUnionKey() {
         return String.valueOf(taskId);
     }
+
+    @Override
+    public int recordLength() {
+        return 500;
+    }
 }

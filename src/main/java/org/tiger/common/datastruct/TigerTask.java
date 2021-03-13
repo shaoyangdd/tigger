@@ -66,5 +66,8 @@ public class TigerTask extends AbstractRecord {
         return taskName;
     }
 
-
+    @Override
+    public int recordLength() {
+        return 500;
+    }
 }

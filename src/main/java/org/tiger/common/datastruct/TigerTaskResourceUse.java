@@ -74,4 +74,9 @@ public class TigerTaskResourceUse extends AbstractRecord {
     public String getUnionKey() {
         return null;
     }
+
+    @Override
+    public int recordLength() {
+        return 500;
+    }
 }

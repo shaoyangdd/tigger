@@ -68,4 +68,9 @@ public class TigerTaskFlow extends AbstractRecord {
     public void setNextTaskId(String nextTaskId) {
         this.nextTaskId = nextTaskId;
     }
+
+    @Override
+    public int recordLength() {
+        return 500;
+    }
 }
